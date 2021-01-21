@@ -22,6 +22,7 @@ common shell calls functions
 '''
 
 
+import os
 import typing
 import subprocess
 
@@ -73,6 +74,9 @@ def process_comm(*cmd: str,
         ``notify`` message if stderr
 
     '''
+    if os.environ.get("READTHEDOCS"):
+        # RTD virutal environment
+        return None
     cmd = list(cmd)
     if timeout is not None and timeout < 0:
         process = subprocess.Popen(cmd, **kwargs)  # DONT: *cmd here
