@@ -18,99 +18,30 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+===================================================
+
+CAUTION
+=======
+
+.. raw:: html
+
+   <span style="color: red; font-size: 2em; font-weight: bold;">STILL TESTING...</span></p>
+
+
+.. mdinclude:: ../README.md
+
+===================================================
+
+COMMANDS
+========
+
+.. mdinclude:: ./client_calls.md
+
+===================================================
 
 PPSI
 =====
 .. automodule:: ppsi
-   :members:
-
-
-Documentation
-=============
-
-.. image:: https://readthedocs.org/projects/ppsi/badge/?version=latest
-           :target: https://ppsi.readthedocs.io/en/latest/?badge=latest
-                    :alt: Documentation Status
-
-
-client
-======
-.. automodule:: ppsi.client
-   :members:
-
-client commands
-===============
-.. automodule:: ppsi.client.command_codes
-   :members:
-
-pspbar
-======
-.. automodule:: ppsi.pspbar
-   :members:
-
-sway_proto
-----------
-.. automodule:: ppsi.pspbar.sway_proto
-   :members:
-
-battery
--------
-.. automodule:: ppsi.pspbar.battery
-   :members:
-
-cpu
-----
-.. automodule:: ppsi.pspbar.cpu
-   :members:
-
-load_average
-------------
-.. automodule:: ppsi.pspbar.load_average
-   :members:
-
-network
--------
-.. automodule:: ppsi.pspbar.network
-   :members:
-
-ram
--------
-.. automodule:: ppsi.pspbar.ram
-   :members:
-
-temperature
------------
-.. automodule:: ppsi.pspbar.temperature
-   :members:
-
-timer
--------
-.. automodule:: ppsi.pspbar.timer
-   :members:
-
-uname
--------
-.. automodule:: ppsi.pspbar.uname
-   :members:
-
-common
-======
-.. automodule:: ppsi.common
-   :members:
-
-defined
--------
-.. automodule:: ppsi.common.defined
-   :members:
-
-misc
-----
-.. automodule:: ppsi.common.misc
-   :members:
-
-shell
------
-.. automodule:: ppsi.common.shell
    :members:
 
 server
@@ -118,55 +49,17 @@ server
 .. automodule:: ppsi.server
    :members:
 
-.. autofunction:: ppsi.server.server_call
-
-btconnect
----------
-.. automodule:: ppsi.server.btconnect
+client
+======
+.. automodule:: ppsi.client
    :members:
 
-passmenu
----------
-.. automodule:: ppsi.server.passmenu
+pspbar
+======
+.. automodule:: ppsi.pspbar
    :members:
 
-light
------
-.. automodule:: ppsi.server.light
-   :members:
-
-remote
-------
-.. automodule:: ppsi.server.remote
-   :members:
-
-volume
-------
-.. automodule:: ppsi.server.volume
-   :members:
-
-wificonnect
------------
-.. automodule:: ppsi.server.wificonnect
-   :members:
-
-workspaces
-----------
-.. automodule:: ppsi.server.workspaces
-   :members:
-
-commands
---------
-.. automodule:: ppsi.server.commands
-   :members:
-
-read_config
------------
-.. automodule:: ppsi.server.read_config
-   :members:
-
-eventwatcher
-------------
-
-.. automodule:: ppsi.server.event_watcher
+common
+======
+.. automodule:: ppsi.common
    :members:

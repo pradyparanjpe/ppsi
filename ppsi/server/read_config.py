@@ -90,4 +90,4 @@ def read_config(custom_conf: str = None,
             config = yaml.safe_load(config_h)
         except (FileNotFoundError, yaml.composer.ComposerError) as err:
             sway_nag(msg=err, error=True)
-    return Path(swayroot), config
+    return Path(swayroot).resolve(), config

@@ -30,7 +30,8 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 def cli() -> typing.Tuple[str, dict]:
     '''
-    client command line parser
+    Client command line parser
+
     '''
     parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
     subparsers = parser.add_subparsers()

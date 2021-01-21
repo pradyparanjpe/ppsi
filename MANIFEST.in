@@ -9,4 +9,5 @@ recursive-include docs Makefile
 recursive-include ppsi *.sh
 recursive-include ppsi *.yml
 recursive-include tests *.py
+recursive-include ppsi *.jpg
 

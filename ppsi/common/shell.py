@@ -41,8 +41,12 @@ def notify(info: str, timeout: int = 5,
         None
 
     '''
+    if os.environ.get("READTHEDOCS"):
+        # RTD virutal environment
+        return None
+    icon = os.path.join(os.path.dirname(__file__), 'icon.jpg')
     timeout *= 1000  # miliseconds
-    cmd = ['notify-send']
+    cmd = ['notify-send', '--icon', icon]
     cmd.extend(send_args)
     if timeout > 0:
         cmd += ['-t', f'{timeout}']

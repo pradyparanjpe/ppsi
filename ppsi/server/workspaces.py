@@ -28,10 +28,11 @@ Workspace-order-cycle for quick cycling/switching.
 '''
 
 
+import os
 import typing
 import json
 from ..common import shell, misc
-from . import CONFIG
+from . import CONFIG, SWAYROOT
 from .sway_api import sway_assign, sway_nag, sway_ws, sway_query, sway_bind
 
 
@@ -238,7 +239,15 @@ class SwayWsMan():
         '''
         Default hard bindings
         bind $mod + variable + Tab to cycling through workspaces
+        bind Alt+Ctrl+p to edit ppsi.yml file in ``SWAYROOT``
         '''
+        editor = os.environ.get(
+            "EDITOR",
+            f"{os.environ.get('defterm', 'xterm')} -- vi"
+        )
+        ppsi_yml_file = str(SWAYROOT.joinpath("ppsi.yml"))
+        sway_bind("Ctrl+Mod1+p",
+                  f'"exec {editor} {ppsi_yml_file}"')
         sway_bind("$mod+Tab",
                   '"exec --no-startup-id ppsi workspace latest"')
         sway_bind("$mod+Shift+Tab",

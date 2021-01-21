@@ -148,7 +148,7 @@ def start_srv():
         if manage_socket():
             return
         server.bind(str(defined.SOCK_PATH))
-    print(f'{defined.SOCK_PATH}', pref='listening', mark_color='lg')
+    print(f'{defined.SOCK_PATH}', pref='listen', pref_color='lg')
     try:
         server.listen()
         while not server._closed:

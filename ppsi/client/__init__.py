@@ -33,7 +33,7 @@ from .command_codes import req2bytes
 from .command_line import cli
 
 
-def check_installations() -> None:
+def _check_installation() -> None:
     '''
     check if the following dependencies are available:
         * nothing here yet
@@ -46,7 +46,7 @@ def check_installations() -> None:
 
 def client_call() -> None:
     '''
-    parse command-line and
+    Parse command-line and
     communicate encoded request to unix socket
 
     Send coded request bytes with kwargs as subcommand bits

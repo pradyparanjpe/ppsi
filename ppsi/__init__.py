@@ -48,13 +48,13 @@ from . import client
 from . import pspbar
 
 
-def check_installations() -> None:
+def _check_installation() -> None:
     '''
     check if dependencies are available
     '''
-    server.check_installations()
-    pspbar.check_installations()
-    client.check_installations()
+    server._check_installation()
+    pspbar._check_installation()
+    client._check_installation()
 
 
 __all__ = [

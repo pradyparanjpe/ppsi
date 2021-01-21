@@ -15,6 +15,7 @@
 import os
 import sys
 import sphinx_rtd_theme
+import m2r2
 sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
@@ -33,7 +34,9 @@ release = '21.1.21'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.todo', 'sphinx.ext.autodoc', 'sphinx.ext.viewcode',
-              'sphinx.ext.napoleon', 'sphinx_rtd_theme']
+              'sphinx.ext.napoleon', 'sphinx_rtd_theme', 'sphinx_autodoc_typehints',
+              'm2r2'
+              ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

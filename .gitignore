@@ -148,3 +148,6 @@ debug/
 
 # pypi upload
 pypi.sh
+
+# Icon svg
+ppsi/common/icon.svg
