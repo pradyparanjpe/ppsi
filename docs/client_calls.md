@@ -121,9 +121,7 @@ Increase volume by ``change``%
 
 ```sh
 ppsi vol + [change]
-```
 
-```sh
 ppsi vol up [change]
 ```
 
@@ -134,9 +132,7 @@ Decrease volume by ``change``%
 
 ```sh
 ppsi vol - [change]
-```
 
-```sh
 ppsi vol down [change]
 ```
 
@@ -146,9 +142,7 @@ Mute the channel
 
 ```sh
 ppsi vol 0
-```
 
-```sh
 ppsi vol mute
 ```
 
@@ -158,6 +152,10 @@ Brightness
 [LIGHT](https://haikarainen.github.io/light/)
 
 Same as ``Volume`` other than the option ``mute``
+
+```sh
+ppsi light {+,-,up,down} [change]
+```
 
 System
 -------

@@ -1,13 +1,15 @@
 Source Code
-=============
+================
 
 [![source](https://github.githubassets.com/favicons/favicon.png)](https://github.com/pradyparanjpe/ppsi.git)
 [Repository](https://github.com/pradyparanjpe/ppsi.git)
 
 Documentation
-=============
+=================
 
 [![Documentation Status](https://readthedocs.org/projects/ppsi/badge/?version=latest)](https://ppsi.readthedocs.io/en/latest/?badge=latest)
+
+===================================================================================
 
 Installation
 =============
@@ -45,14 +47,16 @@ Linux
     - waypipe
 
 ### pip
-  - Use python's package distribution "pip"
+Use python's package distribution "pip"
+
 ```sh
 pip install --user ppsi
 ```
 
 ### pspman
 
-  - Use [pspman](https://github.com/pradyparanjpe/pspman.git) for auto-updates and management
+Use [pspman](https://github.com/pradyparanjpe/pspman.git) for pre-releases, auto-updates and management
+
 ```sh
 pspman -i https://github.com/pradyparanjpe/ppsi.git
 ```
@@ -61,38 +65,23 @@ Uninstallation
 --------------
 
 ### Uninstall using pip
+
 ```sh
 pip uninstall ppsi
 ```
 
-### Delete repository
+### pspman
+
+If pspman was used for installation, delete ppsi repository clone
 
 ```sh
 pspman -d ppsi
 ```
 
-Usage
-======
-
-Use subpackage ``pspbar`` as a minimalistic bar
-  ```sh
-  pspbar -m 10 1
-  ```
-  - Copy [``ppsi.yml``](ppsi/server/config/ppsi.yml) to ``${HOME}/.config/sway/ppsi.yml``
-  ```sh
-  cp "${HOME}/.local/lib/python$(python --version | awk '{print $2}' | cut -d '.' -f 1,2)/site-packages/ppsi/server/config/ppsi.yml" "${HOME}/.config/sway/ppsi.yml"
-  ```
-  - modify it to [suitably](#configuration)
-
-  - Arrange to run the server ``ppsid`` every time sway boots by adding following to sway's config
-  ```sh
-  exec --no-startup-id ppsid
-  ```
-  
-  - Test ``ppsi`` it in command-line, bind ppsi commands to suitable keys
+===============================================================
 
 What it does
--------------
+=================
 
 provides a python interface for
 - workspace-specific keybindings for `$mod+Shift+Return`
@@ -115,6 +104,49 @@ provides a python interface for
   - Core Temperature
   - Battery
   - Time
+
+=====================================================================
+
+Usage
+======
+
+pspbar
+-------
+
+Use subpackage ``pspbar`` as a minimalistic bar
+  ```sh
+  pspbar -m 10 1
+  ```
+
+configure
+-----------
+
+Copy [ppsi.yml](ppsi/server/config/ppsi.yml) to ``${HOME}/.config/sway/ppsi.yml``
+
+pip generally installs packages in /home/.local/lib
+
+```sh
+cp "${HOME}/.local/lib/python$(python --version | awk '{print $2}' | cut -d '.' -f 1,2)/site-packages/ppsi/server/config/ppsi.yml" "${HOME}/.config/sway/ppsi.yml"
+```
+
+If ppsi somehow got installed system-wide [*this is highly discouraged*], use the following instead
+```sh
+cp "/usr/local/lib/python$(python --version | awk '{print $2}' | cut -d '.' -f 1,2)/site-packages/ppsi/server/config/ppsi.yml" "${HOME}/.config/sway/ppsi.yml"
+```
+modify it to [suitably](#configuration)
+
+server
+-------
+
+Arrange to run the server ``ppsid`` every time sway boots by adding following to sway's config
+
+```sh
+exec --no-startup-id ppsid
+```
+  
+Test ``ppsi`` it in command-line, bind ppsi commands to suitable keys see section [COMMANDS](#id4) below
+
+===================================================================================
 
 Configuration
 ==============

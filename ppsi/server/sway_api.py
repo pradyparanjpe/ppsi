@@ -64,7 +64,7 @@ def sway_call(*swaycmd: str, **kwargs) -> str:
     Subprocess opened with swaymsg
 
     Args:
-        *swaycmd: str = sway command
+        *swaycmd: sway command
         **kwargs: passed on to subprocess.Popen
 
     Returns:
@@ -76,12 +76,12 @@ def sway_call(*swaycmd: str, **kwargs) -> str:
     return stdout
 
 
-def sway_query(*swaycmd, **kwargs) -> str:
+def sway_query(*swaycmd: str, **kwargs) -> str:
     '''
     Subprocess opened with swaymsg -t
 
     Args:
-        *swaycmd: str = query command
+        *swaycmd: query command
     **kwargs: passed on to subprocess.Popen
 
     Returns:
@@ -92,12 +92,12 @@ def sway_query(*swaycmd, **kwargs) -> str:
     return sway_call(*swaycmd, **kwargs)
 
 
-def sway_bind(*swaycmd, **kwargs) -> str:
+def sway_bind(*swaycmd: str, **kwargs) -> str:
     '''
     Keybindings called with subprocess swaymsg bindsym
 
     Args:
-        *swaycmd: str = query command
+        *swaycmd: query command
         **kwargs: passed on to subprocess.Popen
 
     Returns:
@@ -108,12 +108,12 @@ def sway_bind(*swaycmd, **kwargs) -> str:
     return sway_call(*swaycmd, **kwargs)
 
 
-def sway_ws(*swaycmd, **kwargs) -> str:
+def sway_ws(*swaycmd: str, **kwargs) -> str:
     '''
     Workspace calls with subprocess swaymsg workspace
 
     Args:
-        *swaycmd: str = query command
+        *swaycmd: query command
         **kwargs: passed on to subprocess.Popen
 
     Returns:
@@ -124,12 +124,12 @@ def sway_ws(*swaycmd, **kwargs) -> str:
     return sway_call(*swaycmd, **kwargs)
 
 
-def sway_assign(*swaycmd, **kwargs) -> str:
+def sway_assign(*swaycmd: str, **kwargs) -> str:
     '''
     App_id assignments to workspaces called with subprocess swaymsg assign
 
     Args:
-        *swaycmd: str = query command
+        *swaycmd: query command
         **kwargs: passed on to subprocess.Popen
 
     Returns:

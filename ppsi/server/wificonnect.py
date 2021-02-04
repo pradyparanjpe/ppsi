@@ -28,7 +28,7 @@ If known, connect. If unknown, ask for password
 
 import typing
 import re
-from launcher_menus import menu, FlagNameNotFoundError
+from launcher_menus.themes import password_prompt, menu
 from ..common import shell
 
 
@@ -104,25 +104,10 @@ def refresh_wifi(subcmd=None) -> None:
     )
     if choice is None:
         return
-    choice = choice.split(":")[0]
+    choice, *_ = choice.split(":")
     cmd = ['nmcli', 'device', 'wifi', 'connect', choice.replace(' ', "\\ ")]
     if choice not in known_aps:
-        try:
-            wifi_pass = menu(
-                opts=[],
-                fail=True,
-                prompt="Passsword:",
-                filter_background="#000000",
-                filter_foreground="#000000",
-            )
-        except FlagNameNotFoundError:
-            wifi_pass = menu(
-                opts=[],
-                fail=False,
-                prompt="Passsword:",
-                normal_background="#000000",
-                normal_foreground="#000000",
-            )
+        wifi_pass = password_prompt( opts=[], fail=True)
         cmd += ['password', wifi_pass.replace(' ', "\\ ")]
     stdout = shell.process_comm(*cmd, p_name='connecting')
     if stdout is None or 'error' in stdout.lower():

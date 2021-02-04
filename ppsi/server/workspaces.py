@@ -215,7 +215,7 @@ class SwayWsMan():
         self.bind_base()
         self.cycle_order = CycleOrder()
         self.cycle_order += self.which_workspace((get_ws()))[0]
-        self.unbind = lambda *args, **kwargs: None
+        self._unbind: typing.Callable = lambda *args, **kwargs: None
 
     @property
     def unbind(self) -> typing.Callable:
@@ -223,7 +223,7 @@ class SwayWsMan():
 
     @unbind.deleter
     def unbind(self):
-        self._unbind = lambda *args, **kwargs: None
+        self._unbind =  lambda *args, **kwargs: None
 
     @unbind.setter
     def unbind(self, method):
@@ -281,7 +281,8 @@ class SwayWsMan():
                 bindings[add_bind['key']] = add_bind['exec']
 
             # Primary overrides if the default keybinding is assigned to others
-            bindings[primary] = w_space.get('primary')
+            if w_space.get('primary'):
+                bindings[primary] = w_space.get('primary')
             assign = w_space.get('assignments', {})
             if isinstance(assign, list):
                 shell.notify('''

@@ -53,7 +53,7 @@ def generate_password(user_idx: str = None) -> None:
     pass_text = pass_gen.split('\n')
     pass_text.remove('')
     pass_plain = ansi_escape.sub('', pass_text[-1])
-    shell.process_comm('wl-copy', '-o', '-n', '-f', pass_plain,
+    shell.process_comm('wl-copy', '-o', '-n', '-f', pass_plain.strip("\n"),
                        p_name='grabbing password')
 
 
@@ -84,7 +84,7 @@ def grab_password() -> str:
     # Password is known
     pass_text = shell.process_comm('pass', 'show', user_idx,
                                    p_name='reading password db')
-    shell.process_comm('wl-copy', '-o', '-n', '-f', pass_text,
+    shell.process_comm('wl-copy', '-o', '-n', '-f', pass_text.strip("\n"),
                        p_name='grabbing password', timeout=-1)
     sleep(45)  # block for 45 seconds
     shell.process_comm('wl-paste', p_name='throwing password', timeout=-1)

@@ -101,3 +101,8 @@ def client_call() -> None:
             print("Server Adios", mark='info')
             return
         print('Server Closed unexpectedly')
+
+__all__ = [
+    'shell',
+    'client_call',
+]

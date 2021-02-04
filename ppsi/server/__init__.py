@@ -20,7 +20,7 @@
 '''
 ppsi server
 
-server daemon that responds to ppsi client
+Listen to and execute commands sent by ppsi client
 '''
 
 
@@ -31,7 +31,7 @@ from .read_config import read_config  # default configs
 SWAYROOT, CONFIG = read_config(None, None)
 
 
-def check_availability():
+def _check_instalaltion():
     '''
     check if following dependencies are available
      * swaymsg: sway
@@ -61,9 +61,12 @@ def check_availability():
             raise FileNotFoundError(f'{proc} not found')
 
 
-def server_call():
+def server_call(**kwargs):
     '''
-    call to start server
+    Start ppsid server
+
+    Args:
+        **kwargs: passed to ``ppsi.server.start_srv``
     '''
     from .command_line import cli
     newroot, newconfig, kwargs = cli()
@@ -79,4 +82,5 @@ def server_call():
 __all__ = [
     'CONFIG',
     'SWAYROOT'
+    'server_call'
 ]
