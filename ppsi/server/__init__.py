@@ -24,6 +24,7 @@ Listen to and execute commands sent by ppsi client
 '''
 
 
+import daemon
 from ..common import shell
 from .read_config import read_config  # default configs
 
@@ -61,12 +62,9 @@ def _check_instalaltion():
             raise FileNotFoundError(f'{proc} not found')
 
 
-def server_call(**kwargs):
+def _server_call(**kwargs) -> None:
     '''
-    Start ppsid server
-
-    Args:
-        **kwargs: passed to ``ppsi.server.start_srv``
+    server_call
     '''
     from .command_line import cli
     newroot, newconfig, kwargs = cli()
@@ -78,6 +76,20 @@ def server_call(**kwargs):
     from .server import start_srv
     start_srv(**kwargs)
 
+def server_call(debug: bool = False, **kwargs) -> None:
+    '''
+    Start ppsid server
+
+    Args:
+        debug: do not daemonize server, output gets printed to STDOUT
+        **kwargs: passed to ``ppsi.server.start_srv``
+
+    '''
+    if debug:
+        with daemon.DaemonContext():
+            _server_call()
+    else:
+        _server_call()
 
 __all__ = [
     'CONFIG',

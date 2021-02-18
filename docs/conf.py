@@ -14,9 +14,9 @@
 #
 import os
 import sys
+sys.path.insert(0, os.path.abspath('..'))
 import sphinx_rtd_theme
 import m2r2
-sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
@@ -25,7 +25,7 @@ copyright = '2021, Pradyumna Paranjape'
 author = 'Pradyumna Paranjape'
 
 # The full version, including alpha/beta/rc tags
-release = '21.1.21'
+release = '21.2.18'
 
 
 # -- General configuration ---------------------------------------------------

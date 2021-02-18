@@ -26,6 +26,7 @@ parse command line to interpret request and corresponding subcommands
 
 import typing
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+import argcomplete
 
 
 def cli() -> typing.Tuple[str, dict]:
@@ -72,6 +73,7 @@ def cli() -> typing.Tuple[str, dict]:
     system.add_argument('mod', choices=['suspend', 'poweroff',
                                         'reboot', 'bios_reboot'])
     system.set_defaults(req='system')
+    argcomplete.autocomplete(parser)
     kwargs = vars(parser.parse_args())
     req: str = kwargs.get('req', 'help')
     if req == 'help':
