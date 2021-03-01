@@ -62,7 +62,7 @@ class BarSeg():
         self.seg_json = SwayProtoIn(name=self.name,
                                     full_text=self.full_text)
 
-    def call_me(self, _=None) -> typing.Dict[str, str]:
+    def call_me(self, **_) -> typing.Dict[str, str]:
         '''
         Args:
             all are ignored
@@ -71,7 +71,7 @@ class BarSeg():
         '''
         return {}
 
-    def callback(self, _) -> None:
+    def callback(self, **_) -> None:
         '''
         Args:
             all are ignored
@@ -91,8 +91,7 @@ class BarSeg():
                  self.ml_tag[0], self.magnitude, self.ml_tag[1],
                  self.units]
             )
-        else:
-            return None
+        return None
 
     @full_text.deleter
     def full_text(self):

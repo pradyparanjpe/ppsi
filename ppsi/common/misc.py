@@ -23,7 +23,7 @@ Miscellaneous functions and constants for ppsi/pspbar
 
 
 import typing
-from collections import Iterable
+import collections
 
 
 def subdict2dict(*subs: dict) -> dict:
@@ -53,6 +53,7 @@ def key2dict(keys: typing.Iterable,
         keys: to be converted to dict
         vals: default value to be imparted to every key
             CAUTION: same 'reference' is passed, changing one will change all
+
         pairwise:
              ``*keys`` -> ``*vals`` pairwise association
             ``vals`` must be iterable, ``len(keys) == len(vals)``
@@ -70,14 +71,17 @@ def key2dict(keys: typing.Iterable,
     keys = list(keys)
     key_val_dict = {}
     if pairwise:
-        if not isinstance(keys, Iterable):
+        if not isinstance(keys, collections.Iterable):
             raise ValueError("keys not iterable")
-        vals = list(vals)
-        if len(keys) != len(vals):
+        if isinstance(vals, collections.Iterable):
+            vals_l = list(vals)
+        else:
+            vals_l = [vals]
+        if len(keys) != len(vals_l):
             raise ValueError("lengths of keys and vals don't match")
     else:
-        vals = [vals] * len(keys)
-    for key_item, val_item in zip(keys, vals):
+        vals_l = [vals] * len(keys)
+    for key_item, val_item in zip(keys, vals_l):
         print(key_item)
         key_val_dict[key_item] = val_item
     return key_val_dict
@@ -109,7 +113,7 @@ def val2dict(vals: typing.Iterable,
     vals = list(vals)
     if not pairwise:
         return {keys: vals}
-    if not isinstance(keys, Iterable):
+    if not isinstance(keys, collections.Iterable):
         raise KeyError("keys not iterable")
     keys = list(keys)
     if len(keys) != len(list(vals)):

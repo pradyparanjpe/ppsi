@@ -27,7 +27,7 @@ Determine a root directory for temporary storage and log files
 
 import os
 import typing
-from pathlib import Path
+import pathlib
 import yaml
 from .sway_api import sway_nag
 
@@ -40,8 +40,8 @@ def get_defaults() -> typing.Tuple[str, dict]:
 
     get default values
     '''
-    swayroot = '.'
-    config = {}
+    swayroot = pathlib.Path('.').resolve()
+    config = pathlib.Path('.').resolve()
     def_loc = [
         [os.environ.get('XDG_CONFIG_HOME', None), 'sway'],  # Good practice
         [os.environ.get('HOME', None), '.config', 'sway', ],  # The same thing
@@ -49,21 +49,22 @@ def get_defaults() -> typing.Tuple[str, dict]:
     ]
     for location in def_loc:
         if location[0] is not None:
-            swayroot = Path(location[0]).joinpath(*location[1:])
+            swayroot = pathlib.Path(location[0]).joinpath(*location[1:])
             if swayroot.is_dir():
                 break
 
     # default config
     for location in def_loc:
         if location[0] is not None:
-            config = Path(location[0]).joinpath(*location[1:], 'ppsi.yml')
+            config = pathlib.Path(location[0]).joinpath(*location[1:],
+                                                        'ppsi.yml')
             if config.exists():
                 break
     return swayroot, config
 
 
 def read_config(custom_conf: str = None,
-                swayroot: str = None) -> typing.Tuple[Path, dict]:
+                swayroot: str = None) -> typing.Tuple[pathlib.Path, dict]:
     '''
     Read ppsi configuration from supplied yml file or default
     Define swayroot to store log files.
@@ -80,7 +81,7 @@ def read_config(custom_conf: str = None,
     if swayroot is None:
         swayroot = defroot
     if custom_conf is None:
-        root_path = Path(swayroot).joinpath("ppsi.yml")
+        root_path = pathlib.Path(swayroot).joinpath("ppsi.yml")
         if root_path.exists():
             custom_conf = root_path
     if custom_conf is None:
@@ -90,4 +91,4 @@ def read_config(custom_conf: str = None,
             config = yaml.safe_load(config_h)
         except (FileNotFoundError, yaml.composer.ComposerError) as err:
             sway_nag(msg=err, error=True)
-    return Path(swayroot).resolve(), config
+    return pathlib.Path(swayroot).resolve(), config

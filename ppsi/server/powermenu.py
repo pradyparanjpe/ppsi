@@ -36,9 +36,11 @@ def adjust_lights():
                        p_name='adjusting light', fail=False)
 
 
-def system(subcmd: int = 1):
+def system(subcmd: int = 1) -> int:
     '''
-    kwargs:
+    Handle system power requests
+
+    Args:
         subcmd: int = command code for systemctl verbs [0, 1, 2, 3]
             0: suspend
             1: poweroff
@@ -46,11 +48,10 @@ def system(subcmd: int = 1):
             3: bios_reboot [if available, request reboot to firmware bios]
 
     Returns:
-        None
-
-    Handle system power requests
+        ``0``
     '''
     subcmd %= len(syscmd)
     adjust_lights()
     verb = syscmd[subcmd - 1].split(" ")
     shell.process_comm('systemctl', *verb, fail=False)
+    return 0

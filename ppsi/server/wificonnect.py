@@ -45,6 +45,9 @@ def query_known() -> typing.List[str]:
     )
     stdout = shell.process_comm('nmcli', 'connection', 'show',
                                 p_name='remembering')
+    if stdout is None:
+        # Error in process call. Let the user type
+        return []
     for connection in stdout.split("\n"):
         wifi_conn = conn_pat.findall(connection)
         if wifi_conn:
@@ -67,6 +70,9 @@ def query_available() -> typing.List[str]:
         'nmcli', 'device', 'wifi', 'list', '--rescan', 'yes',
         p_name='discovering'
     )
+    if stdout is None:
+        # Error in process call. Let the user type
+        return []
     for info_str in stdout.split("\n"):
         grab = info_pat.findall(info_str)
         if grab:
@@ -74,7 +80,7 @@ def query_available() -> typing.List[str]:
     return available_aps
 
 
-def refresh_wifi(subcmd=None) -> None:
+def refresh_wifi(**_) -> int:
     '''
     Offer a available wifi APs to connect
     if the entered wifi ap is not known, request password
@@ -85,14 +91,14 @@ def refresh_wifi(subcmd=None) -> None:
         all are ignored
 
     Returns:
-        ``None``
+        error code
 
     '''
     known_aps = query_known()
     available_aps = query_available()
     if not available_aps:
         shell.notify('No wifi network available', timeout=0)
-        return
+        return 1
     choice = menu(
         opts=[':'.join(info)
               for info in sorted(
@@ -103,14 +109,15 @@ def refresh_wifi(subcmd=None) -> None:
         prompt="connect to"
     )
     if choice is None:
-        return
+        return 0
     choice, *_ = choice.split(":")
     cmd = ['nmcli', 'device', 'wifi', 'connect', choice.replace(' ', "\\ ")]
     if choice not in known_aps:
-        wifi_pass = password_prompt( opts=[], fail=True)
+        wifi_pass = password_prompt(opts=[], fail=True)
         cmd += ['password', wifi_pass.replace(' ', "\\ ")]
     stdout = shell.process_comm(*cmd, p_name='connecting')
     if stdout is None or 'error' in stdout.lower():
         shell.notify(f'Error connecting: {stdout}')
-    else:
-        shell.notify(f'Connected to {choice}')
+        return 1
+    shell.notify(f'Connected to {choice}')
+    return 0

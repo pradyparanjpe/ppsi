@@ -26,6 +26,7 @@ Interactive password manager using `menu`
 
 
 import os
+import typing
 from pathlib import Path
 from time import sleep
 import re
@@ -57,7 +58,7 @@ def generate_password(user_idx: str = None) -> None:
                        p_name='grabbing password')
 
 
-def grab_password() -> str:
+def grab_password() -> typing.Union[str, None]:
     '''
     Select password interactively and copy it to ``wl-copy``
 
@@ -70,15 +71,15 @@ def grab_password() -> str:
     prefix = Path(os.environ.get('PASSWORD_STORE_DIR',
                                  f'{os.environ["HOME"]}/.password-store'))
     password_files = []
-    for base_path, branches, leaves in os.walk(prefix):
+    for base_path, _, leaves in os.walk(prefix):
         for file_name in leaves:
-            f_name, f_ext = os.path.splitext(file_name)
+            _, f_ext = os.path.splitext(file_name)
             if f_ext == '.gpg':
                 f_path = base_path + os.sep + file_name.replace('.gpg', '')
                 password_files.append(f_path.replace(str(prefix) + os.sep, ''))
     user_idx = menu(opts=password_files, prompt='password for')
     if user_idx is None:
-        return
+        return None
     if user_idx not in password_files:
         return user_idx
     # Password is known
@@ -88,10 +89,10 @@ def grab_password() -> str:
                        p_name='grabbing password', timeout=-1)
     sleep(45)  # block for 45 seconds
     shell.process_comm('wl-paste', p_name='throwing password', timeout=-1)
-    return
+    return None
 
 
-def password(subcmd: int = 0) -> None:
+def password(subcmd: int = 0) -> int:
     '''
     Handle password requests
 
@@ -101,7 +102,7 @@ def password(subcmd: int = 0) -> None:
             1: grab password else fail
             2: generate password
     Returns:
-        ``None``
+        error code
 
     '''
     subcmd %= 2
@@ -109,9 +110,10 @@ def password(subcmd: int = 0) -> None:
     if subcmd < 2:
         user_idx = grab_password()
         if not user_idx:
-            return
+            return 1
     if (
             (not subcmd % 2) and
             (menu(opts=['No', 'Yes'], prompt='Create?') == 'Yes')
     ):
         generate_password(user_idx=user_idx)
+    return 0

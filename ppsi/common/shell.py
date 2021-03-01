@@ -28,7 +28,7 @@ import subprocess
 
 
 def notify(info: str, timeout: int = 5,
-           send_args: typing.Tuple[str] = ()) -> None:
+           send_args: typing.Tuple[str] = None) -> None:
     '''
     Push ``info`` to notify-send for ``timeout`` seconds
 
@@ -47,7 +47,8 @@ def notify(info: str, timeout: int = 5,
     icon = os.path.join(os.path.dirname(__file__), 'icon.jpg')
     timeout *= 1000  # miliseconds
     cmd = ['notify-send', '--icon', icon]
-    cmd.extend(send_args)
+    if send_args is not None:
+        cmd.extend(send_args)
     if timeout > 0:
         cmd += ['-t', f'{timeout}']
     cmd.append(info)
@@ -56,12 +57,13 @@ def notify(info: str, timeout: int = 5,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
+    return None
 
 
 def process_comm(*cmd: str,
                  p_name: str = 'processing',
                  timeout: int = None,
-                 fail: bool = True, **kwargs) -> str:
+                 fail: bool = True, **kwargs) -> typing.Union[None, str]:
     '''
     Generic process definition and communication
 
@@ -74,19 +76,19 @@ def process_comm(*cmd: str,
 
     Returns:
         ``stdout`` from command's communication
-        None if stderr and ``fail`` is ``False``
         ``notify`` message if stderr
+        None if stderr and ``fail`` is ``False``
 
     '''
     if os.environ.get("READTHEDOCS"):
         # RTD virutal environment
         return None
-    cmd = list(cmd)
+    cmd_l: typing.List[str] = list(cmd)
     if timeout is not None and timeout < 0:
-        process = subprocess.Popen(cmd, **kwargs)  # DONT: *cmd here
+        process = subprocess.Popen(cmd_l, **kwargs)  # DONT: *cmd_l here
         return None
     process = subprocess.Popen(
-        cmd,
+        cmd_l,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -97,4 +99,4 @@ def process_comm(*cmd: str,
         notify(f'Error {p_name}: {stderr}')
         if fail:
             return None
-    return stdout
+    return stdout  # type: ignore

@@ -43,7 +43,8 @@ class BatSeg(BarSeg):
     Battery segment,
     '''
 
-    def _bat_act(self, conn: bool, fill: float, mem: int) -> int:
+    @staticmethod
+    def _bat_act(conn: bool, fill: float, mem: int) -> int:
         '''
         Emergency Actions.
 
@@ -77,12 +78,13 @@ class BatSeg(BarSeg):
                                    timeout=-1, fail=False)
         return mem
 
-    def call_me(self, mem: int = None) -> typing.Dict[str, str]:
+    def call_me(self, mem: int = None, **_) -> typing.Dict[str, str]:
         '''
         Create Battery summary string
 
         Args:
             mem: int = count memory of warning flash notifications
+            **kwargs: all are ignored
 
         Returns:
             dict to update ``BarSeg`` properties

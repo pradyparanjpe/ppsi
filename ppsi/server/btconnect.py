@@ -42,6 +42,9 @@ def query_known() -> typing.Dict[str, str]:
     )
     bt_ctl_out = shell.process_comm('bluetoothctl', 'devices',
                                     p_name='remembering')
+    if bt_ctl_out is None:
+        # Error in process call. Let the user type
+        return {}
     for bt_dev in bt_ctl_out.split("\n"):
         device = dev_pat.findall(bt_dev)
         if device:
@@ -49,7 +52,7 @@ def query_known() -> typing.Dict[str, str]:
     return known_devs
 
 
-def connect_bluetooth(subcmd=None) -> None:
+def connect_bluetooth(**_) -> int:
     '''
     ``menu`` offers bluetooth devices to connect.
     connection result is flashed via ``notify``.
@@ -58,7 +61,7 @@ def connect_bluetooth(subcmd=None) -> None:
         all are ignored
 
     Returns:
-        ``None``
+        error code
     '''
     known_devs = query_known()
     choice = menu(opts=known_devs.keys(), prompt="Connect_to:")
@@ -70,3 +73,5 @@ def connect_bluetooth(subcmd=None) -> None:
         )
         if any(k in response.lower() for k in ('fail', 'error')):
             shell.notify(f'Connection to {choice} failed')
+            return 1
+    return 0

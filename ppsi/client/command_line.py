@@ -26,7 +26,7 @@ parse command line to interpret request and corresponding subcommands
 
 import typing
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-import argcomplete
+import argcomplete  # type: ignore
 
 
 def cli() -> typing.Tuple[str, dict]:

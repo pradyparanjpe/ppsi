@@ -35,7 +35,7 @@ class TimeSeg(BarSeg):
     '''
     full: bool = True
 
-    def call_me(self, _=None) -> typing.Dict[str, str]:
+    def call_me(self, **_) -> typing.Dict[str, str]:
         '''
         create Time summary string
 
@@ -52,9 +52,13 @@ class TimeSeg(BarSeg):
         return {'magnitude':
                 datetime.datetime.now().strftime("%Y-%m-%d %I:%M:%S")}
 
-    def callback(self, feedback) -> None:
+    def callback(self, **_) -> None:
         '''
         Toggle 12/24 hour format
+
+        Args:
+            all are ignored
+
         '''
         self.full = not self.full
 

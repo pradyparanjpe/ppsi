@@ -97,7 +97,7 @@ class EventLogger():
         for val in args:
             print(f'args: {val}', flush=True, file=self.log)
         for code, feedback in self.feedbacks.items():
-            if (cmd & 0xF0 == code):
+            if cmd & 0xF0 == code:
                 # strip last hex digit
                 feedback[0](*feedback[1])
 

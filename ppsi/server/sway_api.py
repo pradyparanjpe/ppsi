@@ -24,11 +24,12 @@ Swaymsg calls through subprocess module
 '''
 
 
-from ..common import shell
+import typing
 import subprocess
+from ..common import shell
 
 
-def sway_nag(msg: str, **kwargs) -> str:
+def sway_nag(msg: str, **kwargs) -> typing.Union[str, None]:
     '''
     Display panic message on top of screen using swaynag
 
@@ -59,7 +60,7 @@ def sway_nag(msg: str, **kwargs) -> str:
     return stdout
 
 
-def sway_call(*swaycmd: str, **kwargs) -> str:
+def sway_call(*swaycmd: str, **kwargs) -> typing.Union[str, None]:
     '''
     Subprocess opened with swaymsg
 
@@ -71,12 +72,12 @@ def sway_call(*swaycmd: str, **kwargs) -> str:
         swaymsg's stdout
 
     '''
-    swaycmd = ['swaymsg'] + list(swaycmd)
-    stdout = shell.process_comm(*swaycmd, **kwargs)
+    swaycmd_l = ['swaymsg'] + list(swaycmd)
+    stdout = shell.process_comm(*swaycmd_l, **kwargs)
     return stdout
 
 
-def sway_query(*swaycmd: str, **kwargs) -> str:
+def sway_query(*swaycmd: str, **kwargs) -> typing.Union[str, None]:
     '''
     Subprocess opened with swaymsg -t
 
@@ -88,11 +89,11 @@ def sway_query(*swaycmd: str, **kwargs) -> str:
         swaymsg's stdout
 
     '''
-    swaycmd = ['-t'] + list(swaycmd)
-    return sway_call(*swaycmd, **kwargs)
+    swaycmd_l = ['-t'] + list(swaycmd)
+    return sway_call(*swaycmd_l, **kwargs)
 
 
-def sway_bind(*swaycmd: str, **kwargs) -> str:
+def sway_bind(*swaycmd: str, **kwargs) -> typing.Union[str, None]:
     '''
     Keybindings called with subprocess swaymsg bindsym
 
@@ -104,11 +105,11 @@ def sway_bind(*swaycmd: str, **kwargs) -> str:
         swaymsg's stdout
 
     '''
-    swaycmd = ['bindsym'] + list(swaycmd)
-    return sway_call(*swaycmd, **kwargs)
+    swaycmd_l = ['bindsym'] + list(swaycmd)
+    return sway_call(*swaycmd_l, **kwargs)
 
 
-def sway_ws(*swaycmd: str, **kwargs) -> str:
+def sway_ws(*swaycmd: str, **kwargs) -> typing.Union[str, None]:
     '''
     Workspace calls with subprocess swaymsg workspace
 
@@ -120,11 +121,11 @@ def sway_ws(*swaycmd: str, **kwargs) -> str:
         swaymsg's stdout
 
     '''
-    swaycmd = ['workspace'] + list(swaycmd)
-    return sway_call(*swaycmd, **kwargs)
+    swaycmd_l = ['workspace'] + list(swaycmd)
+    return sway_call(*swaycmd_l, **kwargs)
 
 
-def sway_assign(*swaycmd: str, **kwargs) -> str:
+def sway_assign(*swaycmd: str, **kwargs) -> typing.Union[str, None]:
     '''
     App_id assignments to workspaces called with subprocess swaymsg assign
 
@@ -136,5 +137,5 @@ def sway_assign(*swaycmd: str, **kwargs) -> str:
         swaymsg's stdout
 
     '''
-    swaycmd = ['assign'] + list(swaycmd)
-    return sway_call(*swaycmd, **kwargs)
+    swaycmd_l = ['assign'] + list(swaycmd)
+    return sway_call(*swaycmd_l, **kwargs)

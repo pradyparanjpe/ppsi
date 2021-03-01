@@ -32,7 +32,7 @@ from .read_config import read_config  # default configs
 SWAYROOT, CONFIG = read_config(None, None)
 
 
-def _check_instalaltion():
+def check_installation():
     '''
     check if following dependencies are available
      * swaymsg: sway
@@ -76,6 +76,7 @@ def _server_call(**kwargs) -> None:
     from .server import start_srv
     start_srv(**kwargs)
 
+
 def server_call(debug: bool = False, **kwargs) -> None:
     '''
     Start ppsid server
@@ -87,12 +88,13 @@ def server_call(debug: bool = False, **kwargs) -> None:
     '''
     if debug:
         with daemon.DaemonContext():
-            _server_call()
+            _server_call(**kwargs)
     else:
-        _server_call()
+        _server_call(**kwargs)
+
 
 __all__ = [
     'CONFIG',
-    'SWAYROOT'
+    'SWAYROOT',
     'server_call'
 ]

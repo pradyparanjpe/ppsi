@@ -31,7 +31,8 @@ class OSNameSeg(BarSeg):
     '''
     OS name
     '''
-    def call_me(self, _=None) -> typing.Dict[str, str]:
+    @staticmethod
+    def call_me(**_) -> typing.Dict[str, str]:
         '''
         Create Linux release string
 

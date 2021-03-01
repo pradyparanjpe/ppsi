@@ -23,7 +23,7 @@ default ppsi module calls ppsi client
 '''
 
 
-from . import client_call
+from .client import client_call
 
 
 if __name__ == '__main__':

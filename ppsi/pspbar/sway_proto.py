@@ -58,24 +58,40 @@ class SwayProtoIn():
 
     '''
     def __init__(self, **kwargs) -> None:
-        self.full_text: str = ''  # Necessary
-        self.short_text: str = None  # If full_text overflows
-        self.color: str = None  # Text color #RRGGBB[AA]
-        self.background: str = None  # Segment background color #RRGGBB[AA]
-        self.border: str = None  # Segment border color #RRGGBB[AA]
-        self.border_top: int = 1  # top border <px>
-        self.border_bottom: int = 1  # bottom border <px>
-        self.border_left: int = 1  # left border <px>
-        self.border_right: int = 1  # right border <px>
+        # Necessary
+        self.full_text: str = ''
+        # If full_text overflows
+        self.short_text: typing.Union[str, None] = None
+        # Text color #RRGGBB[AA]
+        self.color: typing.Union[str, None] = None
+        # Segment background color #RRGGBB[AA]
+        self.background: typing.Union[str, None] = None
+        # Segment border color #RRGGBB[AA]
+        self.border: typing.Union[str, None] = None
+        # top border <px>
+        self.border_top: typing.Union[int, None] = 1
+        # bottom border <px>
+        self.border_bottom: typing.Union[int, None] = 1
+        # left border <px>
+        self.border_left: typing.Union[int, None] = 1
+        # right border <px>
+        self.border_right: typing.Union[int, None] = 1
         # minimum seg width <px> or 'THIS WORD_S SIZE':
-        self.min_width: typing.Union[int, str] = None
-        self.align: str = 'left'  # left (default), right, or center
-        self.name: str = None  # Name to ID segment. For click events
-        self.instance: str = None  # Instance to ID segment. For click events
-        self.urgent: bool = False  # Highlight Seg for urgency
-        self.separator: bool = True  # Visual separation of seg
-        self.separator_block_width: int = 9  # padding after seg
-        self.markup: str = None  # pango or none
+        self.min_width: typing.Union[int, str, None] = None
+        # left (default), right, or center
+        self.align: typing.Union[str, None] = 'left'
+        # Name to ID segment. For click events
+        self.name: typing.Union[str, None] = None
+        # Instance to ID segment. For click events
+        self.instance: typing.Union[str, None] = None
+        # Highlight Seg for urgency
+        self.urgent: typing.Union[bool, None] = False
+        # Visual separation of seg
+        self.separator: typing.Union[bool, None] = True
+        # padding after seg
+        self.separator_block_width: typing.Union[int, None] = 9
+        # pango or none
+        self.markup: typing.Union[str, None] = None
         self.update(**kwargs)
 
     def update(self, **kwargs) -> None:
@@ -145,17 +161,28 @@ class SwayProtoOut():
 
     '''
     def __init__(self, event_json: str) -> None:
-        self.name: str = None  # The name of seg
-        self.instance: str = None  # The instance of seg
-        self.x: int = None  # The x location that the click occurred at
-        self.y: int = None  # The y location that the click occurred at
-        self.button: int = 0  # The x11 button number for the click.
-        self.event: int = None  # The event code of button for the click
-        self.relative_x: int = None  # x wrt segment
-        self.relative_y: int = None  # y wrt segment
-        self.width: int = None  # width of the seg <px>
-        self.height: int = None  # The height of the seg <px>
-        self.modifiers = None  # Future form i3bar?
+        # The name of seg
+        self.name: typing.Union[str, None] = None
+        # The instance of seg
+        self.instance: typing.Union[str, None] = None
+        # The x location that the click occurred at
+        self.x: typing.Union[int, None] = None
+        # The y location that the click occurred at
+        self.y: typing.Union[int, None] = None
+        # The x11 button number for the click.
+        self.button: typing.Union[int, None] = 0
+        # The event code of button for the click
+        self.event: typing.Union[int, None] = None
+        # x wrt segment
+        self.relative_x: typing.Union[int, None] = None
+        # y wrt segment
+        self.relative_y: typing.Union[int, None] = None
+        # width of the seg <px>
+        self.width: typing.Union[int, None] = None
+        # The height of the seg <px>
+        self.height: typing.Union[int, None] = None
+        # Future form i3bar?
+        self.modifiers: None = None
         if event_json == '[':
             # stream opened
             return

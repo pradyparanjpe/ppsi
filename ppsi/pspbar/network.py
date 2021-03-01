@@ -38,7 +38,8 @@ class IpAddrSeg(BarSeg):
     '''
     ip address segment
     '''
-    def call_me(self, _=None) -> typing.Dict[str, str]:
+    @staticmethod
+    def call_me(**_) -> typing.Dict[str, str]:
         '''
         Create IP ADDRESS string.
 
@@ -73,9 +74,12 @@ class IpAddrSeg(BarSeg):
                     'color': f"#{hex(color)[2:]}"}
         return {'magnitude': addr}
 
-    def callback(self, _):
+    def callback(self, **_):
         '''
         Update wifi connection, refresh
+
+        Args:
+            all are ignored
         '''
         pid = os.fork()
         if pid == 0:
@@ -88,12 +92,14 @@ class NetSpeedSeg(BarSeg):
     '''
     Net speed segment
     '''
-    def call_me(self, mem=None) -> typing.Dict[str, str]:
+    @staticmethod
+    def call_me(mem=None, **_) -> typing.Dict[str, str]:
         '''
         Total internet Speed
 
         Args:
             mem: memory data held between subsequent calls
+            **kwargs: all are ignored
 
         Returns:
             dictionary to update segment attributes

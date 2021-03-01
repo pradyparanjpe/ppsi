@@ -10,8 +10,7 @@
 # (at your option) any later version.
 #
 # ppsi is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# but WITHOUT ANY WARRANTY; without even the implied warranty of # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License
@@ -33,13 +32,14 @@ from .command_codes import req2bytes
 from .command_line import cli
 
 
-def _check_installation() -> None:
+def check_installation() -> None:
     '''
     check if the following dependencies are available:
         * nothing here yet
 
     '''
-    for proc in []:
+    dependencies: typing.List[str] = []
+    for proc in dependencies:
         if shell.process_comm('command', '-v', proc, fail=False):
             raise FileNotFoundError(f'{proc} not found')
 
@@ -79,8 +79,8 @@ def client_call() -> None:
     # send command
     response: bytes = defined.COMM['OK']
     try:
-        CLIENT = socket.socket(family=socket.AF_UNIX, type=socket.SOCK_STREAM)
-        CLIENT.connect(str(defined.SOCK_PATH))
+        client = socket.socket(family=socket.AF_UNIX, type=socket.SOCK_STREAM)
+        client.connect(str(defined.SOCK_PATH))
         for cmd in commands:
             if not(response and response == defined.COMM['OK']):
                 print(
@@ -88,9 +88,9 @@ def client_call() -> None:
                     mark='warn'
                 )
                 break
-            CLIENT.send(cmd)
-            response = CLIENT.recv(defined.INST_SIZE)
-        CLIENT.send(defined.COMM['BYE'])
+            client.send(cmd)
+            response = client.recv(defined.INST_SIZE)
+        client.send(defined.COMM['BYE'])
     except (FileNotFoundError, ConnectionRefusedError):
         # scoket file not found
         print('Confirm that the server is running correctly',
@@ -101,6 +101,7 @@ def client_call() -> None:
             print("Server Adios", mark='info')
             return
         print('Server Closed unexpectedly')
+
 
 __all__ = [
     'shell',

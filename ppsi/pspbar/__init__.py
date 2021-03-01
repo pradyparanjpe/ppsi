@@ -49,7 +49,7 @@ from .uname import OSNAME
 from .load_average import LOAD
 
 
-def _check_installation() -> None:
+def check_installation() -> None:
     '''
     Check if the following dependencies are available:
         * nothing here yet

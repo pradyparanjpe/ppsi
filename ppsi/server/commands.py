@@ -32,34 +32,37 @@ from .light import light
 from .powermenu import system
 
 
-def empty(**kwargs) -> None:
+def cmd_wrap(comm: int, **kwargs) -> int:
     '''
-    Empty placeholder command
+    Call commands accoding to mod
 
     Args:
-        all are ignored
+        comm: command (mod+subcmd)
+        **kwargs: passed on to command
 
     Returns:
-        ``None``
+        error code
     '''
-    print('Empty command called')
-    return None
-
-
-CMD = {
-    0x10: ws_mod,
-    0x20: call_remote,
-    0x30: password,
-    0x40: refresh_wifi,
-    0x50: connect_bluetooth,
-    0x60: vol,
-    0x70: light,
-    0x80: empty,
-    0x90: empty,
-    0xA0: empty,
-    0xB0: empty,
-    0xC0: empty,
-    0xD0: empty,
-    0xE0: empty,
-    0xF0: system,
-}
+    err = 0
+    kwargs['subcmd'] = comm & 0x0f
+    mod = comm // 0x10
+    if mod == 0x1:
+        err = ws_mod(**kwargs)
+    elif mod == 0x2:
+        err = call_remote(**kwargs)
+    elif mod == 0x3:
+        err = password(**kwargs)
+    elif mod == 0x4:
+        err = refresh_wifi(**kwargs)
+    elif mod == 0x5:
+        err = connect_bluetooth(**kwargs)
+    elif mod == 0x6:
+        err = vol(**kwargs)
+    elif mod == 0x7:
+        err = light(**kwargs)
+    elif mod == 0xF:
+        err = system(**kwargs)
+    else:
+        print('Empty command called')
+        err = 1
+    return err

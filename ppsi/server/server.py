@@ -29,18 +29,18 @@ import os
 import sys
 import threading
 import socket
-import psutil
 import json
+import psutil
 from psprint import print
 from ..common import defined
-from .commands import CMD
+from .commands import cmd_wrap
 from .event_watcher import open_pipe, EventLogger
 
 
-def read_json_bytes(pipe: socket) -> dict:
+def read_json_bytes(pipe: socket.socket) -> dict:
     '''
-    kwargs:
-        pipe: socket = socket throught which json object arrives
+    Args:
+        pipe = socket throught which json object arrives
 
     Returns:
         dict interpreted from incomming json
@@ -55,12 +55,12 @@ def read_json_bytes(pipe: socket) -> dict:
     pipe.send(defined.COMM['OK'])  # I am ready to accept stream
     json_bytes = pipe.recv(stream_len)
     pipe.send(defined.COMM['OK'])
-    return json.loads(json_bytes.decode(defined.CODING))
+    return json.loads(json_bytes.decode(defined.CODING))  # type: ignore
 
 
-def handle_cmd(pipe: socket, logger: EventLogger) -> None:
+def handle_cmd(pipe: socket.socket, logger: EventLogger) -> None:
     '''
-    kwargs:
+    Args:
         pipe: socket = socket through which client communications arrive
         logger: EventLogger = container object holding logger objects
 
@@ -79,7 +79,7 @@ def handle_cmd(pipe: socket, logger: EventLogger) -> None:
         if comm < 0x10:
             # socket communication
             if in_bytes == defined.COMM['ACCEPT']:
-                kwargs.update(read_json_bytes(pipe)),
+                kwargs.update(read_json_bytes(pipe))
             elif in_bytes == defined.COMM['BYE']:
                 connected = False
             elif in_bytes == defined.COMM['EXIT']:
@@ -97,7 +97,7 @@ def handle_cmd(pipe: socket, logger: EventLogger) -> None:
                 pipe.send(defined.COMM['FAULT'])
         else:
             # ppsi command
-            err = CMD[comm & 0xF0](subcmd=comm & 0x0F, **kwargs)
+            err = cmd_wrap(comm=comm, **kwargs)
             logger.event_registry(comm=comm)
             if err:
                 pipe.send(defined.COMM['FAULT'])
@@ -112,8 +112,9 @@ def manage_socket():
     If not running, rename socket as .last_session (overwriting target)
 
     Returns:
-        True: if socket can be made available
-        False: If Server is running
+        ``True`` if socket can be made available;
+        ``False`` If Server is running
+
     '''
     # check if ppsid another is running
     count_daemons = 0

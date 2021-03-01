@@ -30,9 +30,9 @@ TODO: Offer ossify temporary information.
 
 import os
 from pathlib import Path
-import yaml
 import typing
-from launcher_menus import menu
+import yaml
+from launcher_menus import menu  # type: ignore
 from . import CONFIG
 from ..common import shell
 
@@ -157,25 +157,25 @@ def remote_app() -> str:
     return app
 
 
-def call_remote(subcmd=None):
+def call_remote(**_) -> int:
     '''
     Call remote ssh and try to set up a connection
     Use menu launcher to learn
-    * username
-    * host address
-    * interface type {GUI,CLI}
-    * Application name (if GUI)
+        * username
+        * host address
+        * interface type {GUI,CLI}
+        * Application name (if GUI)
 
     Args:
         all are ignored
 
     Returns:
-        ``None``
+        error code
 
     '''
     user, host = which_remote()
     if host is None or user is None:
-        return
+        return 1
     cmd = ['--', 'ssh', f'{user}@{host}']
     if graphical():
         app = remote_app()
@@ -189,3 +189,4 @@ def call_remote(subcmd=None):
     else:
         cmd.insert(0, os.environ.get('defterm', 'xterm'))
     shell.process_comm(*cmd, p_name='connecting remote', timeout=-1)
+    return 0

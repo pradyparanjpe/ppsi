@@ -30,7 +30,7 @@ from pathlib import Path
 RUN_LOC = [
     os.environ.get('XDG_RUNTIME_DIR'),  # Good practice
     os.path.join('/run/user', os.environ.get('UID', 'current_user')),  # hard
-    os.path.join(os.environ.get('HOME'), '.runtime')  # Alas!
+    os.path.join(os.environ['HOME'], '.runtime')  # Alas!
 ]
 '''
 Default locations of runtime directory:

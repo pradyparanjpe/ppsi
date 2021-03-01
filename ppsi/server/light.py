@@ -29,10 +29,7 @@ import math
 from ..common import shell
 
 
-def bar_val_color(
-        value: float,
-        pig_order: typing.List[str] = ['AA', 'RR', 'GG', 'BB']
-) -> str:
+def bar_val_color(value: float, pig_order: typing.List[str] = None) -> str:
     '''
     Process magnitude to ARGB colors.
 
@@ -44,6 +41,7 @@ def bar_val_color(
         wob input string val(in %) #background #frame #foreground
 
     '''
+    pig_order = pig_order or ['AA', 'RR', 'GG', 'BB']
     value /= 100  # light yields %age value
     value = max(value, 0)
     # defaults
@@ -65,7 +63,7 @@ def bar_val_color(
     return f"{cent_value} #{bg_str} #{fr_str} #{col_str}"
 
 
-def light(subcmd: int = 1, change: float = 2) -> None:
+def light(subcmd: int = 1, change: float = 2) -> int:
     '''
     Call ``light``.
 
@@ -77,7 +75,7 @@ def light(subcmd: int = 1, change: float = 2) -> None:
         change: percentage change requested
 
     Returns:
-         ``None``
+         ``0``
 
     '''
     subcmd %= 3
@@ -85,6 +83,7 @@ def light(subcmd: int = 1, change: float = 2) -> None:
     direction = ['-G', '-A', '-U'][subcmd]
     cmd += [direction, f'{change}']
     shell.process_comm(*cmd, p_name="adjusting light", timeout=-1)
+    return 0
 
 
 def light_feedback(wob: subprocess.Popen):

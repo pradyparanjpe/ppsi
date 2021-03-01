@@ -29,7 +29,7 @@ import json
 from ..common import defined
 
 
-def workspaces(mod: str = None, **kwargs) -> typing.Tuple[int, str]:
+def workspaces(mod: str = None, **_) -> typing.Tuple[int, str]:
     '''
     Workspace actions.
 
@@ -54,7 +54,7 @@ def workspaces(mod: str = None, **kwargs) -> typing.Tuple[int, str]:
     return subcmd, None
 
 
-def comm(mod: str = None, **kwargs) -> typing.Tuple[int, str]:
+def comm(mod: str = None, **_) -> typing.Tuple[int, str]:
     '''
     Communication instructions to ppsid server
     'reload' is Not working yet.
@@ -69,7 +69,6 @@ def comm(mod: str = None, **kwargs) -> typing.Tuple[int, str]:
     Returns:
         tuple(code of mod, ``None``)
     '''
-    mod = kwargs.get('mod')
     mod_menu = {
         'quit': 0x0E,
         'exit': 0x0E,
@@ -79,7 +78,7 @@ def comm(mod: str = None, **kwargs) -> typing.Tuple[int, str]:
     return subcmd, None
 
 
-def blank(**kwargs) -> typing.Tuple[int, str]:
+def blank(**_) -> typing.Tuple[int, str]:
     '''
     Blank placeholder.
 
@@ -152,7 +151,7 @@ def light(mod: str = None, **kwargs) -> typing.Tuple[int, str]:
     return subcmd, json.dumps(kwargs)
 
 
-def system(mod: str = None, **kwargs) -> typing.Tuple[int, str]:
+def system(mod: str = None, **_) -> typing.Tuple[int, str]:
     '''
     Systemctl instructions.
 

@@ -23,6 +23,7 @@ Calls ``pacmd`` for information and ``pactl`` for changes.
 '''
 
 
+import typing
 import re
 import subprocess
 import math
@@ -30,7 +31,7 @@ from ..common import shell
 
 
 def bar_val_color(left: float, right: float, muted: bool = False,
-                  index: int = 0, pig_order=['AA', 'RR', 'GG', 'BB']) -> str:
+                  pig_order: typing.List[str] = None, **_) -> str:
     '''
     Process sound volume magnitude to #AARRGGBB colors
 
@@ -38,12 +39,13 @@ def bar_val_color(left: float, right: float, muted: bool = False,
         left: volume of left channel {percent}
         right: volume of right channel {percent}
         muted: mute state
-        index: ignored placeholder
         pig_order: pigment order
+        **kwargs: all are ignored
 
     Returns:
         wob input string val(%) #background #frame #foreground
     '''
+    pig_order = pig_order or ['AA', 'RR', 'GG', 'BB']
     if right is None or left is None:
         return ''
     if muted is None:
@@ -77,8 +79,7 @@ def bar_val_color(left: float, right: float, muted: bool = False,
     fr_str = ''.join([f'{frcol[pig]:0{2}x}' for pig in pig_order])
     col_str = ''.join([f'{color[pig]:0{2}x}' for pig in pig_order])
     # outputs
-    cent_value = round(value * 100)
-    return f"{cent_value} #{bg_str} #{fr_str} #{col_str}"
+    return f"{round(value * 100)} #{bg_str} #{fr_str} #{col_str}"
 
 
 def get_sink_defaults() -> dict:
@@ -88,20 +89,25 @@ def get_sink_defaults() -> dict:
     from ``pacmd`` output
 
     Returns:
-        Namespace dict of fetched values
+        Dictionary of fetched values
+
     '''
     vol_prop = {
-        'index': None,
-        'left': None,
-        'right': None,
-        'muted': None
+        'index': '',
+        'left': 0,
+        'right': 0,
+        'muted': False
     }
     active_mark = False
     index_pat = re.compile(r':\W+?(\d+?)\n')
     curr_volume_pat = re.compile(r'.+?(\d+?)%.+?(\d+?)%.+?')
     muted_pat = re.compile(r'\W+?muted:\W+?(\w+)')
-    sink_list = shell.process_comm("pacmd", "list-sinks",
-                                   p_name='Get pa sink info').split("index")
+    pacmd_out = shell.process_comm("pacmd", "list-sinks",
+                                   p_name='Get pa sink info')
+    if pacmd_out is None:
+        return {'index': None}
+    sink_list = pacmd_out.split("index")
+    sink_data = ''
     for sink_data in sink_list:
         if active_mark:
             index = index_pat.findall(sink_data)[0]
@@ -121,7 +127,7 @@ def get_sink_defaults() -> dict:
     return vol_prop
 
 
-def vol(subcmd: int = 1, change: float = 2) -> None:
+def vol(subcmd: int = 1, change: float = 2) -> int:
     '''
     Args:
         subcmd: int = action codes {0,1,-1}
@@ -131,13 +137,13 @@ def vol(subcmd: int = 1, change: float = 2) -> None:
         change: float = percentage change requested
 
     Returns:
-        ``None``
+        error code
     '''
     subcmd %= 3
     cmd = ['pactl']
     sink_idx = get_sink_defaults()['index']
     if sink_idx is None:
-        return
+        return 1
     if subcmd:
         direction = [None, '+', '-'][subcmd]
         cmd += ['set-sink-volume', f"{direction}{change}%"]
@@ -145,19 +151,23 @@ def vol(subcmd: int = 1, change: float = 2) -> None:
         cmd += ['set-sink-mute', 'toggle']
     cmd.insert(2, str(sink_idx))
     shell.process_comm(*cmd, p_name="adjusting volume", timeout=-1)
+    return 0
 
 
-def vol_feedback(wob: subprocess.Popen, **kwargs) -> None:
+def vol_feedback(wob: subprocess.Popen, **_) -> None:
     '''
     Feedback volume via ``wob``
 
     Args:
         wob: process handle to pipe-in wob input string
+        **kwargs: all are ignored
 
-    Returns:
-        ``None``
     '''
     sink_state = get_sink_defaults()
     wob_in_str = bar_val_color(**sink_state)
-    wob.stdin.write(wob_in_str + "\n")
-    wob.stdin.flush()
+    stdin = wob.stdin
+    if isinstance(stdin, None):
+        # no standard input
+        pass
+    stdin.write(wob_in_str + "\n")
+    stdin.flush()

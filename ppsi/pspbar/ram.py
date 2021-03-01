@@ -31,9 +31,14 @@ class RamSeg(BarSeg):
     '''
     RAM segment
     '''
-    def call_me(self, _=None) -> typing.Dict[str, str]:
+    @staticmethod
+    def call_me(**_) -> typing.Dict[str, str]:
         '''
         Create RAM summary string
+
+        Args:
+            all are ignored
+
         '''
         ram_fill = psutil.virtual_memory().percent
         color = None

@@ -60,21 +60,22 @@ class WorkSpace():
     Workspace object
     Args:
         index: index (number) of workspace (workspace is bound to this key)
-        name: displayed name of wordspace
-        suicidal: forget this workspace if unfocused and without containers
         keybindings: "keypress": "binding execution"
         assignments: class|app_id: list(container patterns)
+        **kwargs:
+            name: displayed name of wordspace
+            suicidal: forget this workspace if unfocused and without containers
+
     '''
-    def __init__(self, index: str, name: str = None,
-                 suicidal: bool = False, keybindings: dict = {},
-                 assignments: typing.Dict[str, list] = {}) -> None:
+    def __init__(self, index: str, keybindings: dict = None,
+                 assignments: typing.Dict[str, list] = None, **kwargs) -> None:
         self.index = index
         self.name = self.index
-        if name is not None:
-            self.name += f":{name}"
-        self.suicidal = suicidal
-        self.keybindings = keybindings
-        self.assignments = assignments
+        self.suicidal = kwargs.get('suicidal', False)
+        if 'name' in kwargs:
+            self.name += ":" + kwargs['name']
+        self.keybindings = keybindings or {}
+        self.assignments = assignments or {}
 
     def bind(self) -> None:
         '''
@@ -95,7 +96,7 @@ class WorkSpace():
         Args:
             manager: parent manager
         '''
-        for key, action in self.keybindings.items():
+        for key in self.keybindings:
             sway_bind(key, 'nop')
         if self.suicidal:
             if self.name not in sway_query('get_workspaces'):
@@ -168,10 +169,9 @@ class CycleOrder(list):
             current (active) workspace *as registered* in the cycle
             ``None`` if workspace stack is empty
         '''
-        if len(self):
+        if len(self) != 0:
             return self[-1]
-        else:
-            return None
+        return None
 
     def __add__(self, index: int = 0) -> int:
         '''
@@ -219,17 +219,24 @@ class SwayWsMan():
 
     @property
     def unbind(self) -> typing.Callable:
+        '''
+        Execution method to unbind keybindings.
+        This gets called when a workspace gets unfocused.
+        '''
         return self._unbind
 
     @unbind.deleter
     def unbind(self):
-        self._unbind =  lambda *args, **kwargs: None
+        self._unbind = lambda *args, **kwargs: None
 
     @unbind.setter
     def unbind(self, method):
         self._unbind = self.exitter(method)
 
     def exitter(self, method: typing.Callable) -> typing.Callable:
+        '''
+        Decorate wrap function
+        '''
         def wrapper(method=method, manager=self, **kwargs):
             return method(manager=manager, **kwargs)
         return wrapper
@@ -373,7 +380,7 @@ SwayWsMan instance in use.
 '''
 
 
-def ws_mod(subcmd: int = 0x00, manager: SwayWsMan = PPSI_WS_MAN) -> None:
+def ws_mod(subcmd: int = 0x00, manager: SwayWsMan = PPSI_WS_MAN) -> int:
     '''
     WorkSpace modification requests called by ppsi client
 
@@ -386,13 +393,14 @@ def ws_mod(subcmd: int = 0x00, manager: SwayWsMan = PPSI_WS_MAN) -> None:
         manager: Workspace Manager instance
 
     Returns:
-        ``None``
+        error code
+
     '''
     if subcmd == 0x00:
         curr_name = get_ws()
         if curr_name is None:
             # Failed to get workspace name and/or corresponding workspace
-            return
+            return 1
         current_id, current_ws = manager.which_workspace(curr_name)
         if current_id is None:
             # create anew
@@ -401,7 +409,7 @@ def ws_mod(subcmd: int = 0x00, manager: SwayWsMan = PPSI_WS_MAN) -> None:
         elif current_id == -1:
             # we've switched to already active workspace,
             # hence, we need to do nothing
-            return
+            return 0
         manager.cycle_order += current_id
         # unbind old
         manager.unbind()
@@ -409,11 +417,11 @@ def ws_mod(subcmd: int = 0x00, manager: SwayWsMan = PPSI_WS_MAN) -> None:
         # bind new
         current_ws.bind()
         manager.unbind: typing.Callable = current_ws.unbind
-        return
-    elif subcmd == 0x01:
+        return 0
+    if subcmd == 0x01:
         manager.cycle_order.reverse()
-        return
-    elif subcmd == 0x02:
+        return 0
+    if subcmd == 0x02:
         current_id = manager.cycle_order + 0
     elif subcmd == 0x03:
         current_id = manager.cycle_order - 2
@@ -421,4 +429,4 @@ def ws_mod(subcmd: int = 0x00, manager: SwayWsMan = PPSI_WS_MAN) -> None:
     sw_2_ws = manager.assigned[current_id]
     manager.unbind()
     manager.unbind: typing.Callable = sw_2_ws.switch()
-    return
+    return 0

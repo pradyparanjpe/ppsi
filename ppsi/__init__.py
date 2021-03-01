@@ -40,21 +40,19 @@ A swaybar-protocol-compatible 'pspbar'
 that can call ppsi functions
 '''
 
-import subprocess
-
 
 from . import server
 from . import client
 from . import pspbar
 
 
-def _check_installation() -> None:
+def check_installation() -> None:
     '''
     check if dependencies are available
     '''
-    server._check_installation()
-    pspbar._check_installation()
-    client._check_installation()
+    server.check_installation()
+    pspbar.check_installation()
+    client.check_installation()
 
 
 __all__ = [
