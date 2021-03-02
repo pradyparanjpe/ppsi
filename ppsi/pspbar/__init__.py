@@ -32,6 +32,7 @@ Defines:
 
 
 import sys
+import typing
 import datetime
 import time
 import warnings
@@ -55,7 +56,8 @@ def check_installation() -> None:
         * nothing here yet
 
     '''
-    for proc in []:
+    dependencies: typing.List[str] = []
+    for proc in dependencies:
         if shell.process_comm('command', '-v', proc, fail=False):
             raise FileNotFoundError(f'{proc} not found')
 

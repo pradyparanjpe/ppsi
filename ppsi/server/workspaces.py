@@ -36,17 +36,19 @@ from . import CONFIG, SWAYROOT
 from .sway_api import sway_assign, sway_nag, sway_ws, sway_query, sway_bind
 
 
-def get_ws() -> str:
+def get_ws() -> typing.Optional[str]:
     '''
     Get currently focused workspace name by parsing ``swaymsg``
 
-    On Error:
-        ``swaynag`` about unavailability of focused workspace
-
     Returns:
         Workspace Name as displayed (including workspace number)
+        ``None`` on failure
+
     '''
     stdout = sway_query('get_workspaces')
+    if stdout is None:
+        sway_nag('swaymsg failed', error=True)
+        return None
     ws_info: typing.List[dict] = json.loads(stdout)
     for w_space in ws_info:
         if w_space['focused']:
@@ -99,7 +101,10 @@ class WorkSpace():
         for key in self.keybindings:
             sway_bind(key, 'nop')
         if self.suicidal:
-            if self.name not in sway_query('get_workspaces'):
+            if sway_query('get_workspaces') is None:
+                sway_nag("Failed to forget workspace", error=True)
+                return
+            if self.name not in sway_query('get_workspaces'):  # type: ignore
                 manager.destroy_ws(self)
 
     def switch(self) -> typing.Callable:
@@ -146,7 +151,7 @@ class CycleOrder(list):
             self += w_sp
         self += self[0]
 
-    def __iadd__(self, value: int) -> 'CycleOrder':
+    def __iadd__(self, value: int = None) -> 'CycleOrder':  # type: ignore
         '''
         Add a workspace index
 
@@ -156,12 +161,15 @@ class CycleOrder(list):
         Returns:
             Updated CycleOrder
         '''
+        # hard overloaded
+        if value is None:
+            return self
         while value in self:
             self.remove(value)
         self.append(value)
         return self
 
-    def current(self) -> int:
+    def current(self) -> typing.Optional[int]:
         '''
         Retrieve index of currently focused workspace
 
@@ -173,7 +181,7 @@ class CycleOrder(list):
             return self[-1]
         return None
 
-    def __add__(self, index: int = 0) -> int:
+    def __add__(self, index: int = 0) -> typing.Optional[int]:  # type: ignore
         '''
         Query index of oldest workspace
 
@@ -183,11 +191,12 @@ class CycleOrder(list):
         Returns:
             current focus (``index`` brought to focus)
         '''
+        # hard overloaded
         if len(self) > index:
             self.__iadd__(self[index])
         return self.current()
 
-    def __sub__(self, index=2) -> int:
+    def __sub__(self, index=2) -> typing.Optional[int]:
         '''
         Query index of latest Nth workspace
 
@@ -252,7 +261,7 @@ class SwayWsMan():
             "EDITOR",
             f"{os.environ.get('defterm', 'xterm')} -- vi"
         )
-        ppsi_yml_file = str(SWAYROOT.joinpath("ppsi.yml"))
+        ppsi_yml_file = os.path.join(SWAYROOT, "ppsi.yml")
         sway_bind("Ctrl+Mod1+p",
                   f'"exec {editor} {ppsi_yml_file}"')
         sway_bind("$mod+Tab",
@@ -284,12 +293,12 @@ class SwayWsMan():
             assignments: typing.Dict[str, list] = {'class': [], 'app_id': []}
 
             # Others
-            for add_bind in w_space.get('bind'):
+            for add_bind in w_space['bind']:
                 bindings[add_bind['key']] = add_bind['exec']
 
             # Primary overrides if the default keybinding is assigned to others
             if w_space.get('primary'):
-                bindings[primary] = w_space.get('primary')
+                bindings[primary] = w_space['primary']
             assign = w_space.get('assignments', {})
             if isinstance(assign, list):
                 shell.notify('''
@@ -357,7 +366,10 @@ class SwayWsMan():
         self.assigned.remove(w_sp)
         self.cycle_order.remove(idx)
 
-    def which_workspace(self, name: str) -> typing.Tuple[int, WorkSpace]:
+    def which_workspace(self, name: str = None) -> typing.Tuple[
+            typing.Optional[int],
+            typing.Optional[WorkSpace]
+    ]:
         '''
         Args:
             name: name of workspace
@@ -415,8 +427,10 @@ def ws_mod(subcmd: int = 0x00, manager: SwayWsMan = PPSI_WS_MAN) -> int:
         manager.unbind()
 
         # bind new
+        if current_ws is None:
+            return 1
         current_ws.bind()
-        manager.unbind: typing.Callable = current_ws.unbind
+        manager.unbind = current_ws.unbind
         return 0
     if subcmd == 0x01:
         manager.cycle_order.reverse()
@@ -426,7 +440,9 @@ def ws_mod(subcmd: int = 0x00, manager: SwayWsMan = PPSI_WS_MAN) -> int:
     elif subcmd == 0x03:
         current_id = manager.cycle_order - 2
     # current_ws to-be
+    if current_id is None:
+        return 1
     sw_2_ws = manager.assigned[current_id]
     manager.unbind()
-    manager.unbind: typing.Callable = sw_2_ws.switch()
+    manager.unbind = sw_2_ws.switch()
     return 0

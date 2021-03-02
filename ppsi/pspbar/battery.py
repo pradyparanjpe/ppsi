@@ -78,7 +78,7 @@ class BatSeg(BarSeg):
                                    timeout=-1, fail=False)
         return mem
 
-    def call_me(self, mem: int = None, **_) -> typing.Dict[str, str]:
+    def call_me(self, mem: int = None, **_) -> typing.Dict[str, object]:
         '''
         Create Battery summary string
 
@@ -100,7 +100,7 @@ class BatSeg(BarSeg):
         if bat_conn:
             sym_pango = ['<span foreground="#7fffffff">', '</span>']
         # Action
-        mem = self._bat_act(conn=bat_conn, fill=bat_fill, mem=mem)
+        mem = self._bat_act(conn=bat_conn, fill=bat_fill, mem=mem or 0)
         # returns
         if bat_fill >= 100:
             sym, val, color = EMOJIS['bat_100'], "100", "#7fffffff"

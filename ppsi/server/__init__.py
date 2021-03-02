@@ -65,6 +65,10 @@ def check_installation():
 def _server_call(**kwargs) -> None:
     '''
     server_call
+
+
+    Args:
+        **kwargs: passed on to start_srv
     '''
     from .command_line import cli
     newroot, newconfig, kwargs = cli()

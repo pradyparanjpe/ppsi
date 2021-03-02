@@ -166,8 +166,5 @@ def vol_feedback(wob: subprocess.Popen, **_) -> None:
     sink_state = get_sink_defaults()
     wob_in_str = bar_val_color(**sink_state)
     stdin = wob.stdin
-    if isinstance(stdin, None):
-        # no standard input
-        pass
-    stdin.write(wob_in_str + "\n")
-    stdin.flush()
+    stdin.write(wob_in_str + "\n")  # type: ignore
+    stdin.flush()  # type: ignore

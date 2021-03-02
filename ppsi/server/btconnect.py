@@ -71,6 +71,10 @@ def connect_bluetooth(**_) -> int:
             'bluetoothctl', 'connect', known_devs[choice],
             p_name='connecting'
         )
+        if response is None:
+            shell.notify('`bluetoothctl connect` failed.\
+            Is the daemon healthy?')
+            return 1
         if any(k in response.lower() for k in ('fail', 'error')):
             shell.notify(f'Connection to {choice} failed')
             return 1

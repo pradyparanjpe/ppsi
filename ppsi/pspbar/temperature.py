@@ -42,7 +42,7 @@ class TempSeg(BarSeg):
     Temperature segment
     '''
     @staticmethod
-    def call_me(**_) -> typing.Dict[str, str]:
+    def call_me(**_) -> typing.Dict[str, typing.Optional[str]]:
         '''
         Create Temperature summary string
 

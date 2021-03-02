@@ -29,7 +29,7 @@ import json
 from ..common import defined
 
 
-def workspaces(mod: str = None, **_) -> typing.Tuple[int, str]:
+def workspaces(mod: str = None, **_) -> typing.Tuple[int, None]:
     '''
     Workspace actions.
 
@@ -45,16 +45,18 @@ def workspaces(mod: str = None, **_) -> typing.Tuple[int, str]:
     Returns:
         tuple(code of mod, ``None``)
     '''
+    if mod is None:
+        return 0x00, None
     subcmd = {
         'reverse': 0x01,
         'oldest': 0x02,
         'latest': 0x03,
-        'back': 0x03
+        'back': 0x03,
     }.get(mod, 0x00)
     return subcmd, None
 
 
-def comm(mod: str = None, **_) -> typing.Tuple[int, str]:
+def comm(mod: str = None, **_) -> typing.Tuple[int, None]:
     '''
     Communication instructions to ppsid server
     'reload' is Not working yet.
@@ -69,16 +71,18 @@ def comm(mod: str = None, **_) -> typing.Tuple[int, str]:
     Returns:
         tuple(code of mod, ``None``)
     '''
+    if mod is None:
+        return 0x0E, None
     mod_menu = {
         'quit': 0x0E,
         'exit': 0x0E,
         'reload': 0x0E,
     }
-    subcmd = mod_menu.get(mod)
+    subcmd = mod_menu.get(mod, 0x0E)
     return subcmd, None
 
 
-def blank(**_) -> typing.Tuple[int, str]:
+def blank(**_) -> typing.Tuple[int, None]:
     '''
     Blank placeholder.
 
@@ -93,7 +97,7 @@ def blank(**_) -> typing.Tuple[int, str]:
     return 0x00, None
 
 
-def vol(mod: str = None, **kwargs) -> typing.Tuple[int, str]:
+def vol(mod: str, **kwargs) -> typing.Tuple[int, str]:
     '''
     Volume action.
 
@@ -120,11 +124,11 @@ def vol(mod: str = None, **kwargs) -> typing.Tuple[int, str]:
         'down': 0x02,
         '-': 0x02,
     }
-    subcmd = mod_menu.get(mod)
+    subcmd = mod_menu[mod]
     return subcmd, json.dumps(kwargs)
 
 
-def light(mod: str = None, **kwargs) -> typing.Tuple[int, str]:
+def light(mod: str, **kwargs) -> typing.Tuple[int, str]:
     '''
     Brightness actions.
 
@@ -147,11 +151,11 @@ def light(mod: str = None, **kwargs) -> typing.Tuple[int, str]:
         'down': 0x02,
         '-': 0x02,
     }
-    subcmd = mod_menu.get(mod)
+    subcmd = mod_menu[mod]
     return subcmd, json.dumps(kwargs)
 
 
-def system(mod: str = None, **_) -> typing.Tuple[int, str]:
+def system(mod: str, **_) -> typing.Tuple[int, None]:
     '''
     Systemctl instructions.
 
@@ -173,7 +177,7 @@ def system(mod: str = None, **_) -> typing.Tuple[int, str]:
         'reboot': 0x03,
         'bios_reboot': 0x04,
     }
-    sub_byte = mod_menu.get(mod)
+    sub_byte = mod_menu[mod]
     return sub_byte, None
 
 
@@ -210,7 +214,9 @@ SUB_ARGS: typing.Dict[int, typing.Callable] = {
 }
 
 
-def req2bytes(req: str, **kwargs) -> typing.Tuple[bytes, bytes, bytes]:
+def req2bytes(req: str, **kwargs) -> typing.Tuple[typing.Optional[bytes],
+                                                  typing.Optional[bytes],
+                                                  typing.Optional[bytes]]:
     '''
     Convert request to encoded instruction bytes and
     byte-encoded serialized input data for the instruction.
@@ -236,11 +242,11 @@ def req2bytes(req: str, **kwargs) -> typing.Tuple[bytes, bytes, bytes]:
         # bad sub-argument
         return None, None, None
 
-    inst: bytes = (base + sub_byte).to_bytes(defined.INST_SIZE, 'big')
+    inst = (base + sub_byte).to_bytes(defined.INST_SIZE, 'big')
 
     if serial is not None:
-        serial_bytes: bytes = serial.encode(defined.CODING)
-        serial_len: bytes = str(len(serial_bytes)).encode(defined.CODING)
+        serial_bytes = serial.encode(defined.CODING)
+        serial_len = str(len(serial_bytes)).encode(defined.CODING)
         serial_len += b' ' * (defined.HEAD_SIZE - len(serial_len))
 
     return inst, serial_bytes, serial_len

@@ -131,14 +131,17 @@ def manage_socket():
         # discounting THIS daemon
         print("Server is already running", mark='err')
         return True
-    defined.SOCK_PATH.replace(str(defined.SOCK_PATH) + ".last_session")
+    os.rename(defined.SOCK_PATH, defined.SOCK_PATH + ".last_session")
     return False
 
 
-def start_srv():
+def start_srv(**_):
     '''
     Server that listens to unix socket and handles encoded client requests
     Spawns threads of separate client communications
+
+    Args: all are ignored
+
     '''
     server = socket.socket(family=socket.AF_UNIX, type=socket.SOCK_STREAM)
     wob = open_pipe()
@@ -152,7 +155,7 @@ def start_srv():
     print(f'{defined.SOCK_PATH}', pref='listen', pref_color='lg')
     try:
         server.listen()
-        while not server._closed:
+        while not server._closed:  # type: ignore
             pipe, _ = server.accept()
             thread = threading.Thread(target=handle_cmd, args=(pipe, logger))
             thread.start()

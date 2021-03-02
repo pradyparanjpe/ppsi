@@ -32,7 +32,7 @@ class RamSeg(BarSeg):
     RAM segment
     '''
     @staticmethod
-    def call_me(**_) -> typing.Dict[str, str]:
+    def call_me(**_) -> typing.Dict[str, typing.Optional[str]]:
         '''
         Create RAM summary string
 

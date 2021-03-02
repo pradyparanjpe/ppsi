@@ -39,7 +39,7 @@ class IpAddrSeg(BarSeg):
     ip address segment
     '''
     @staticmethod
-    def call_me(**_) -> typing.Dict[str, str]:
+    def call_me(**_) -> typing.Dict[str, object]:
         '''
         Create IP ADDRESS string.
 
@@ -93,7 +93,7 @@ class NetSpeedSeg(BarSeg):
     Net speed segment
     '''
     @staticmethod
-    def call_me(mem=None, **_) -> typing.Dict[str, str]:
+    def call_me(mem=None, **_) -> typing.Dict[str, object]:
         '''
         Total internet Speed
 

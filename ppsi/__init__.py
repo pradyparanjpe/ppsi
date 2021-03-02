@@ -61,4 +61,4 @@ __all__ = [
     'pspbar'
 ]
 
-__version__ = '21.2.18'
+__version__ = '21.3.1'

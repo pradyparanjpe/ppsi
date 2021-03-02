@@ -28,7 +28,7 @@ import subprocess
 
 
 def notify(info: str, timeout: int = 5,
-           send_args: typing.Tuple[str] = None) -> None:
+           send_args: typing.Tuple[str, ...] = None) -> None:
     '''
     Push ``info`` to notify-send for ``timeout`` seconds
 
@@ -63,7 +63,7 @@ def notify(info: str, timeout: int = 5,
 def process_comm(*cmd: str,
                  p_name: str = 'processing',
                  timeout: int = None,
-                 fail: bool = True, **kwargs) -> typing.Union[None, str]:
+                 fail: bool = True, **kwargs) -> typing.Optional[str]:
     '''
     Generic process definition and communication
 

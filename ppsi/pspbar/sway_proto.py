@@ -61,37 +61,37 @@ class SwayProtoIn():
         # Necessary
         self.full_text: str = ''
         # If full_text overflows
-        self.short_text: typing.Union[str, None] = None
+        self.short_text: typing.Optional[str] = None
         # Text color #RRGGBB[AA]
-        self.color: typing.Union[str, None] = None
+        self.color: typing.Optional[str] = None
         # Segment background color #RRGGBB[AA]
-        self.background: typing.Union[str, None] = None
+        self.background: typing.Optional[str] = None
         # Segment border color #RRGGBB[AA]
-        self.border: typing.Union[str, None] = None
+        self.border: typing.Optional[str] = None
         # top border <px>
-        self.border_top: typing.Union[int, None] = 1
+        self.border_top: typing.Optional[int] = 1
         # bottom border <px>
-        self.border_bottom: typing.Union[int, None] = 1
+        self.border_bottom: typing.Optional[int] = 1
         # left border <px>
-        self.border_left: typing.Union[int, None] = 1
+        self.border_left: typing.Optional[int] = 1
         # right border <px>
-        self.border_right: typing.Union[int, None] = 1
+        self.border_right: typing.Optional[int] = 1
         # minimum seg width <px> or 'THIS WORD_S SIZE':
         self.min_width: typing.Union[int, str, None] = None
         # left (default), right, or center
-        self.align: typing.Union[str, None] = 'left'
+        self.align: typing.Optional[str] = 'left'
         # Name to ID segment. For click events
-        self.name: typing.Union[str, None] = None
+        self.name: typing.Optional[str] = None
         # Instance to ID segment. For click events
-        self.instance: typing.Union[str, None] = None
+        self.instance: typing.Optional[str] = None
         # Highlight Seg for urgency
-        self.urgent: typing.Union[bool, None] = False
+        self.urgent: typing.Optional[bool] = False
         # Visual separation of seg
-        self.separator: typing.Union[bool, None] = True
+        self.separator: typing.Optional[bool] = True
         # padding after seg
-        self.separator_block_width: typing.Union[int, None] = 9
+        self.separator_block_width: typing.Optional[int] = 9
         # pango or none
-        self.markup: typing.Union[str, None] = None
+        self.markup: typing.Optional[str] = None
         self.update(**kwargs)
 
     def update(self, **kwargs) -> None:
@@ -162,25 +162,25 @@ class SwayProtoOut():
     '''
     def __init__(self, event_json: str) -> None:
         # The name of seg
-        self.name: typing.Union[str, None] = None
+        self.name: typing.Optional[str] = None
         # The instance of seg
-        self.instance: typing.Union[str, None] = None
+        self.instance: typing.Optional[str] = None
         # The x location that the click occurred at
-        self.x: typing.Union[int, None] = None
+        self.x: typing.Optional[int] = None
         # The y location that the click occurred at
-        self.y: typing.Union[int, None] = None
+        self.y: typing.Optional[int] = None
         # The x11 button number for the click.
-        self.button: typing.Union[int, None] = 0
+        self.button: typing.Optional[int] = 0
         # The event code of button for the click
-        self.event: typing.Union[int, None] = None
+        self.event: typing.Optional[int] = None
         # x wrt segment
-        self.relative_x: typing.Union[int, None] = None
+        self.relative_x: typing.Optional[int] = None
         # y wrt segment
-        self.relative_y: typing.Union[int, None] = None
+        self.relative_y: typing.Optional[int] = None
         # width of the seg <px>
-        self.width: typing.Union[int, None] = None
+        self.width: typing.Optional[int] = None
         # The height of the seg <px>
-        self.height: typing.Union[int, None] = None
+        self.height: typing.Optional[int] = None
         # Future form i3bar?
         self.modifiers: None = None
         if event_json == '[':

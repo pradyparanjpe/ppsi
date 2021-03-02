@@ -31,7 +31,7 @@ class LoadSeg(BarSeg):
     '''
     Load Segment
     '''
-    def call_me(self, _=None) -> typing.Dict[str, str]:
+    def call_me(self, **_) -> typing.Dict[str, object]:
         '''
         Create CPU load summary string
 

@@ -29,7 +29,6 @@ TODO: Offer ossify temporary information.
 
 
 import os
-from pathlib import Path
 import typing
 import yaml
 from launcher_menus import menu  # type: ignore
@@ -50,18 +49,14 @@ def handle_tmp_cfg() -> typing.Tuple[str, dict]:
     uid = os.environ.get('UID')
     if uid is None:
         # uid couldn't be guessed use temporary directory
-        basepath = Path("/tmp")
+        basepath = "/tmp"
     else:
         # uid is known
         # try for hard path
-        basepath = Path('/run').joinpath('user', str(uid))
-    xdg_run: Path = Path(os.environ.get('XDG_RUNTIME_DIR', str(basepath)))
-    tmp_cfg = xdg_run.joinpath(
-        'sway',
-        'ppsi',
-        'remote.yml',
-    )
-    if tmp_cfg.exists():
+        basepath = os.path.join('/run', 'user', str(uid))
+    xdg_run = os.environ.get('XDG_RUNTIME_DIR', str(basepath))
+    tmp_cfg = os.path.join(xdg_run, 'sway', 'ppsi', 'remote.yml')
+    if os.path.exists(tmp_cfg):
         with open(tmp_cfg, 'r') as config_h:
             data = yaml.safe_load(config_h)
         if not data:
@@ -86,8 +81,8 @@ def add_id(identity: str, new: str = 'user') -> None:
         ``None``
 
     '''
-    if not TMP_CFG.exists():
-        TMP_CFG.parents[0].mkdir(exist_ok=True)
+    if not os.path.exists(TMP_CFG):
+        os.makedirs(os.path.split(TMP_CFG)[0], exist_ok=True)
     if 'remote' not in DATA:
         DATA['remote'] = {'hosts': [], 'users': []}
     if 'apps' not in DATA:
@@ -102,7 +97,7 @@ def add_id(identity: str, new: str = 'user') -> None:
         yaml.safe_dump(DATA, config_h)
 
 
-def which_remote() -> typing.Tuple[str]:
+def which_remote() -> typing.Tuple[typing.Optional[str], typing.Optional[str]]:
     '''
     Fetch desired remote session details using ``menu``
 
@@ -119,8 +114,8 @@ def which_remote() -> typing.Tuple[str]:
         known_users += DATA['remote']['users']
         known_hosts += DATA['remote']['hosts']
 
-    user = menu(opts=known_users, prompt='user') or os.environ['USER']
-    host = menu(opts=known_hosts, prompt='host') or 'localhost'
+    user: str = menu(opts=known_users, prompt='user') or os.environ['USER']
+    host: str = menu(opts=known_hosts, prompt='host') or 'localhost'
     if user == os.environ['USER'] and host == 'localhost':
         # mind changed
         return None, None

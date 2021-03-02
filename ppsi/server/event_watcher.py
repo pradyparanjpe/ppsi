@@ -37,7 +37,7 @@ Some events will trigger function calls:
 
 import os
 import subprocess
-from pathlib import Path
+import pathlib
 from .workspaces import ws_mod
 from .volume import vol_feedback
 from .light import light_feedback
@@ -52,14 +52,12 @@ class EventLogger():
         root: root in which, a hidden log-file '.ppsi.log' is maintained
 
     '''
-    def __init__(self, wob: subprocess.Popen, root: Path = SWAYROOT) -> None:
-        self.logfile = Path(os.path.join(root, '.ppsi.log'))
+    def __init__(self, wob: subprocess.Popen, root: str = SWAYROOT) -> None:
+        self.logfile = os.path.join(root, '.ppsi.log')
         self.wob = wob
-        if self.logfile.exists():
+        if os.path.exists(self.logfile):
             # old logs will get written to .ppsi.log.last_session
-            self.logfile.replace(
-                os.path.join(root, '.ppsi.log.last_session')
-            )
+            os.rename(self.logfile, self.logfile + '.last_session')
         self.log = open(self.logfile, 'a')
         self.feedbacks = {
             0x10: (ws_mod, ()),  # workspace changed
@@ -91,7 +89,7 @@ class EventLogger():
 
 
         '''
-        cmd = kwargs.get('comm')
+        cmd = kwargs['comm']
         for key, val in kwargs.items():
             print(f'{key}: {val:x}', flush=True, file=self.log)
         for val in args:
@@ -99,7 +97,7 @@ class EventLogger():
         for code, feedback in self.feedbacks.items():
             if cmd & 0xF0 == code:
                 # strip last hex digit
-                feedback[0](*feedback[1])
+                feedback[0](*feedback[1])  # type: ignore
 
 
 def open_pipe() -> subprocess.Popen:

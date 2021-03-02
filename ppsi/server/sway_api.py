@@ -29,7 +29,7 @@ import subprocess
 from ..common import shell
 
 
-def sway_nag(msg: str, **kwargs) -> typing.Union[str, None]:
+def sway_nag(msg: str, **kwargs) -> typing.Optional[str]:
     '''
     Display panic message on top of screen using swaynag
 
@@ -60,7 +60,7 @@ def sway_nag(msg: str, **kwargs) -> typing.Union[str, None]:
     return stdout
 
 
-def sway_call(*swaycmd: str, **kwargs) -> typing.Union[str, None]:
+def sway_call(*swaycmd: str, **kwargs) -> typing.Optional[str]:
     '''
     Subprocess opened with swaymsg
 
@@ -77,7 +77,7 @@ def sway_call(*swaycmd: str, **kwargs) -> typing.Union[str, None]:
     return stdout
 
 
-def sway_query(*swaycmd: str, **kwargs) -> typing.Union[str, None]:
+def sway_query(*swaycmd: str, **kwargs) -> typing.Optional[str]:
     '''
     Subprocess opened with swaymsg -t
 
@@ -93,7 +93,7 @@ def sway_query(*swaycmd: str, **kwargs) -> typing.Union[str, None]:
     return sway_call(*swaycmd_l, **kwargs)
 
 
-def sway_bind(*swaycmd: str, **kwargs) -> typing.Union[str, None]:
+def sway_bind(*swaycmd: str, **kwargs) -> typing.Optional[str]:
     '''
     Keybindings called with subprocess swaymsg bindsym
 
@@ -109,7 +109,7 @@ def sway_bind(*swaycmd: str, **kwargs) -> typing.Union[str, None]:
     return sway_call(*swaycmd_l, **kwargs)
 
 
-def sway_ws(*swaycmd: str, **kwargs) -> typing.Union[str, None]:
+def sway_ws(*swaycmd: str, **kwargs) -> typing.Optional[str]:
     '''
     Workspace calls with subprocess swaymsg workspace
 
@@ -125,7 +125,7 @@ def sway_ws(*swaycmd: str, **kwargs) -> typing.Union[str, None]:
     return sway_call(*swaycmd_l, **kwargs)
 
 
-def sway_assign(*swaycmd: str, **kwargs) -> typing.Union[str, None]:
+def sway_assign(*swaycmd: str, **kwargs) -> typing.Optional[str]:
     '''
     App_id assignments to workspaces called with subprocess swaymsg assign
 

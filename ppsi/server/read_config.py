@@ -27,12 +27,11 @@ Determine a root directory for temporary storage and log files
 
 import os
 import typing
-import pathlib
 import yaml
 from .sway_api import sway_nag
 
 
-def get_defaults() -> typing.Tuple[str, dict]:
+def get_defaults() -> typing.Tuple[str, str]:
     '''
     Returns:
         swayroot: Confirmed existing Path for sway files
@@ -40,31 +39,36 @@ def get_defaults() -> typing.Tuple[str, dict]:
 
     get default values
     '''
-    swayroot = pathlib.Path('.').resolve()
-    config = pathlib.Path('.').resolve()
-    def_loc = [
-        [os.environ.get('XDG_CONFIG_HOME', None), 'sway'],  # Good practice
-        [os.environ.get('HOME', None), '.config', 'sway', ],  # The same thing
-        [os.path.join(os.path.dirname(__file__)), 'config'],  # Shipped default
+    # Shipped defaults
+    swayroot = os.path.join(os.path.dirname(__file__), 'config')
+    config = os.path.join(swayroot, 'ppsi.yml')
+
+    def_loc: typing.List[typing.Tuple[typing.Optional[str],
+                                      typing.Tuple[str, ...]]] = [
+        (os.environ.get('XDG_CONFIG_HOME', None), ('sway',)),  # Good practice
+        (os.environ.get('HOME', None), ('.config', 'sway') ),  # The same thing
     ]
     for location in def_loc:
         if location[0] is not None:
-            swayroot = pathlib.Path(location[0]).joinpath(*location[1:])
-            if swayroot.is_dir():
+            test_root = os.path.join(location[0], *location[1])
+            if os.path.isdir(test_root):
+                swayroot = test_root
                 break
 
     # default config
     for location in def_loc:
         if location[0] is not None:
-            config = pathlib.Path(location[0]).joinpath(*location[1:],
-                                                        'ppsi.yml')
-            if config.exists():
+            test_conf = os.path.join(location[0],*location[1], 'ppsi.yml')
+            if os.path.exists(test_conf):
+                config = test_conf
                 break
     return swayroot, config
 
 
-def read_config(custom_conf: str = None,
-                swayroot: str = None) -> typing.Tuple[pathlib.Path, dict]:
+def read_config(
+        custom_conf: str = None,
+        swayroot: str = None
+) -> typing.Tuple[str, dict]:
     '''
     Read ppsi configuration from supplied yml file or default
     Define swayroot to store log files.
@@ -81,8 +85,8 @@ def read_config(custom_conf: str = None,
     if swayroot is None:
         swayroot = defroot
     if custom_conf is None:
-        root_path = pathlib.Path(swayroot).joinpath("ppsi.yml")
-        if root_path.exists():
+        root_path = os.path.join(swayroot,"ppsi.yml")
+        if os.path.exists(root_path):
             custom_conf = root_path
     if custom_conf is None:
         custom_conf = defconfig
@@ -90,5 +94,5 @@ def read_config(custom_conf: str = None,
         try:
             config = yaml.safe_load(config_h)
         except (FileNotFoundError, yaml.composer.ComposerError) as err:
-            sway_nag(msg=err, error=True)
-    return pathlib.Path(swayroot).resolve(), config
+            sway_nag(msg=str(err), error=True)
+    return os.path.realpath(swayroot), config

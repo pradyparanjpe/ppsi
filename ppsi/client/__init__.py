@@ -70,7 +70,7 @@ def client_call() -> None:
     if serial_bytes is not None:
         # pass serialized json object
         commands.append(defined.COMM['ACCEPT'])
-        commands.append(serial_len)
+        commands.append(serial_len)  # type: ignore
         commands.append(serial_bytes)
 
     commands.append(inst)

@@ -56,18 +56,19 @@ class BarSeg():
         self.ml_tag: typing.List[str] = ['', '']
         self.magnitude = ''
         self.units = ''
-        self.mem: typing.Any = None
+        self.mem: typing.Union[int, float, str, list, None] = None
         self.pango: bool = False
         self.__dict__.update(kwargs)
         self.seg_json = SwayProtoIn(name=self.name,
                                     full_text=self.full_text)
 
-    def call_me(self, **_) -> typing.Dict[str, str]:
+    def call_me(self, **_) -> typing.Dict[str, typing.Any]:
         '''
+        Dumb call
+
         Args:
             all are ignored
 
-        Dumb call
         '''
         return {}
 
@@ -129,7 +130,10 @@ class BarSeg():
                 other kwargs are passed on to ``SwayProtoIn``
 
         '''
-        kwargs = (custom or self.call_me)(self.mem)
+        if custom is not None:
+            kwargs = custom(self.mem)
+        else:
+            kwargs = self.call_me(self.mem)  # type: ignore
         for key in 'symbol', 'magnitude', 'mem', 'ml_tag', 'vis':
             if key in kwargs:
                 setattr(self, key, kwargs[key])
@@ -150,10 +154,10 @@ class SBar():
     '''
     def __init__(self) -> None:
         self.bar_str = ''
-        self.bar_segs = []
-        self.quick_segs = []
-        self.slow_segs = []
-        self.static_segs = []
+        self.bar_segs: typing.List[BarSeg] = []
+        self.quick_segs: typing.List[BarSeg] = []
+        self.slow_segs: typing.List[BarSeg] = []
+        self.static_segs: typing.List[BarSeg] = []
 
     def add_segs(self, segment: BarSeg,
                  interval: int = 1, position: int = None) -> None:
@@ -173,7 +177,7 @@ class SBar():
             ``None``
 
         '''
-        self.bar_segs.insert(position, segment)
+        self.bar_segs.insert(position or -1, segment)
 
         if interval == 1:
             self.quick_segs.append(segment)
@@ -244,4 +248,4 @@ class SBar():
                 sway_comm = SwayProtoOut(feedback)
                 for seg in filter(lambda x: x.name == sway_comm.name,
                                   self.bar_segs):
-                    seg.callback(sway_comm)
+                    seg.callback(sway_comm)  # type: ignore

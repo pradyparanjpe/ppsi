@@ -24,27 +24,28 @@ Global definitions for ppsi socket that are inhereted by both
 
 
 import os
-from pathlib import Path
+import typing
+
 
 # location of socket in a RUNTIME DIRRECTORY
-RUN_LOC = [
+RUN_LOC: typing.List[typing.Optional[str]] = [
     os.environ.get('XDG_RUNTIME_DIR'),  # Good practice
     os.path.join('/run/user', os.environ.get('UID', 'current_user')),  # hard
     os.path.join(os.environ['HOME'], '.runtime')  # Alas!
 ]
 '''
 Default locations of runtime directory:
-    * From environment {XDG_RUNTIME_DIR} ELSE
+    * From environment ${XDG_RUNTIME_DIR} ELSE
     * as hardcoded /run/user/$UID ELSE
     * as ${HOME}/.runtime
 '''
 
 for location in RUN_LOC:
-    if location is not None and Path(location).is_dir():
-        SOCK_PARENT = Path(location).joinpath(location, 'sway')
-        if not SOCK_PARENT.is_dir():
-            SOCK_PARENT.mkdir()
-        SOCK_PATH: Path = SOCK_PARENT.joinpath('ppsi.sock')
+    if location is not None and os.path.isdir(location):
+        SOCK_PARENT = os.path.join(location, 'sway')
+        if not os.path.isdir(SOCK_PARENT):
+            os.makedirs(SOCK_PARENT, exist_ok=True)
+        SOCK_PATH = os.path.join(SOCK_PARENT, 'ppsi.sock')
         break
 
 INST_SIZE = 0x1  # 1 byte(s) = 16 communications + 15 commands * 16 subcommands

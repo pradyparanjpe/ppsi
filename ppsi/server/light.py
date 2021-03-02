@@ -86,7 +86,7 @@ def light(subcmd: int = 1, change: float = 2) -> int:
     return 0
 
 
-def light_feedback(wob: subprocess.Popen):
+def light_feedback(wob: subprocess.Popen) -> int:
     '''
     Feedback brightness via ``wob``.
 
@@ -94,9 +94,12 @@ def light_feedback(wob: subprocess.Popen):
         wob: process handle to pipe-in wob input string
 
     Returns:
-        ``None``
+        Error code
     '''
-    brightness = float(shell.process_comm('light', "-G"))
-    wob_in_str = bar_val_color(value=brightness)
-    wob.stdin.write(wob_in_str + "\n")
-    wob.stdin.flush()
+    brightness = shell.process_comm('light', "-G")
+    if brightness is None:
+        return 1
+    wob_in_str = bar_val_color(value=float(brightness))
+    wob.stdin.write(wob_in_str + "\n")  # type: ignore
+    wob.stdin.flush()  # type: ignore
+    return 0
