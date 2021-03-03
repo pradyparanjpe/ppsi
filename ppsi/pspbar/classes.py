@@ -131,9 +131,9 @@ class BarSeg():
 
         '''
         if custom is not None:
-            kwargs = custom(self.mem)
+            kwargs = custom(mem=self.mem)
         else:
-            kwargs = self.call_me(self.mem)  # type: ignore
+            kwargs = self.call_me(mem=self.mem)
         for key in 'symbol', 'magnitude', 'mem', 'ml_tag', 'vis':
             if key in kwargs:
                 setattr(self, key, kwargs[key])
@@ -248,4 +248,4 @@ class SBar():
                 sway_comm = SwayProtoOut(feedback)
                 for seg in filter(lambda x: x.name == sway_comm.name,
                                   self.bar_segs):
-                    seg.callback(sway_comm)  # type: ignore
+                    seg.callback(swayfeed=sway_comm)
