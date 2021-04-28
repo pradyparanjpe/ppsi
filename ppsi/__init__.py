@@ -40,10 +40,7 @@ A swaybar-protocol-compatible 'pspbar'
 that can call ppsi functions
 '''
 
-
-from . import server
-from . import client
-from . import pspbar
+from . import client, pspbar, server
 
 
 def check_installation() -> None:
@@ -55,10 +52,6 @@ def check_installation() -> None:
     client.check_installation()
 
 
-__all__ = [
-    'server',
-    'client',
-    'pspbar'
-]
+__all__ = ['server', 'client', 'pspbar']
 
-__version__ = '21.3.1'
+__version__ = '1!1.0.0'

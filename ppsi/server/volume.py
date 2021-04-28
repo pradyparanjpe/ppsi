@@ -19,19 +19,22 @@
 '''
 Volume api to interface ``pulseaudio``.
 
-Calls ``pacmd`` for information and ``pactl`` for changes.
+Calls ``pactl`` for information and changes.
 '''
 
-
-import typing
+import math
 import re
 import subprocess
-import math
+import typing
+
 from ..common import shell
 
 
-def bar_val_color(left: float, right: float, muted: bool = False,
-                  pig_order: typing.List[str] = None, **_) -> str:
+def bar_val_color(left: float,
+                  right: float,
+                  muted: bool = False,
+                  pig_order: typing.List[str] = None,
+                  **_) -> str:
     '''
     Process sound volume magnitude to #AARRGGBB colors
 
@@ -51,7 +54,7 @@ def bar_val_color(left: float, right: float, muted: bool = False,
     if muted is None:
         muted = False  # assume
     value = left + right
-    value /= 200  # pacmd sends %age value
+    value /= 200  # fished value is in %age
     hyper_vol = False
     value = max(value, 0)
     # defaults
@@ -64,7 +67,7 @@ def bar_val_color(left: float, right: float, muted: bool = False,
         hyper_vol = True
     color['RR'] = round((1 - value) * 0xff)
     color['GG'] = round((value) * 0xff)
-    color['BB'] = round(math.sin(math.pi*value) * 0xff)
+    color['BB'] = round(math.sin(math.pi * value) * 0xff)
     if muted:
         for pigment, sat in color.items():
             if pigment != 'AA':
@@ -86,39 +89,25 @@ def get_sink_defaults() -> dict:
     '''
     fetch pulseaudio volume output channel index,
     left channel volume, right channel volume, mute state,
-    from ``pacmd`` output
+    from ``pactl`` output
 
     Returns:
         Dictionary of fetched values
 
     '''
-    vol_prop = {
-        'index': '',
-        'left': 0,
-        'right': 0,
-        'muted': False
-    }
-    active_mark = False
-    index_pat = re.compile(r':\W+?(\d+?)\n')
-    curr_volume_pat = re.compile(r'.+?(\d+?)%.+?(\d+?)%.+?')
-    muted_pat = re.compile(r'\W+?muted:\W+?(\w+)')
-    pacmd_out = shell.process_comm("pacmd", "list-sinks",
-                                   p_name='Get pa sink info')
-    if pacmd_out is None:
+    vol_prop = {'index': '', 'left': 0, 'right': 0, 'muted': False}
+    index_pat = re.compile(r'Sink\W+#(\d+)')
+    curr_volume_pat = re.compile(r'\W+Volume: .*?(\d+?)%.*?(\d+?)%')
+    muted_pat = re.compile(r'\W+?Mute:\W+?(\w+)')
+    pa_info = shell.process_comm("pactl", "list", "sinks", p_name="Get info")
+    if pa_info is None or pa_info == []:
         return {'index': None}
-    sink_list = pacmd_out.split("index")
-    sink_data = ''
-    for sink_data in sink_list:
-        if active_mark:
-            index = index_pat.findall(sink_data)[0]
-            break
-        if sink_data.replace(" ", "")[-1] == "*":
-            active_mark = True
-    if not active_mark:
-        return vol_prop
+    index = index_pat.findall(pa_info)[0]
+    if not index:
+        return {'index': None}
     vol_prop['index'] = index
-    volumes = curr_volume_pat.findall(sink_data)
-    muted_grp = muted_pat.findall(sink_data)
+    volumes = curr_volume_pat.findall(pa_info)
+    muted_grp = muted_pat.findall(pa_info)
     if volumes:
         vol_prop['left'] = int(volumes[0][0])
         vol_prop['right'] = int(volumes[0][1])
@@ -166,5 +155,5 @@ def vol_feedback(wob: subprocess.Popen, **_) -> None:
     sink_state = get_sink_defaults()
     wob_in_str = bar_val_color(**sink_state)
     stdin = wob.stdin
-    stdin.write(wob_in_str + "\n")  # type: ignore
-    stdin.flush()  # type: ignore
+    stdin.write(wob_in_str + "\n")
+    stdin.flush()
