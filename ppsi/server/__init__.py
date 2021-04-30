@@ -23,11 +23,11 @@ ppsi server
 Listen to and execute commands sent by ppsi client
 '''
 
+import shutil
 
 import daemon
-from ..common import shell
-from .read_config import read_config  # default configs
 
+from .read_config import read_config  # default configs
 
 SWAYROOT, CONFIG = read_config(None, None)
 
@@ -50,7 +50,6 @@ def check_installation():
             'swaymsg',  # sway
             'nmcli',  # NetworkManager
             'bluetoothctl',  # bluez
-            'pacmd',  # pulseaudio
             'pactl',  # pulseaudio
             'light',  # light
             'wob',  # wob
@@ -58,7 +57,7 @@ def check_installation():
             'wl-copy'  # wayland copy xclip
             'systemctl',  # systemctl
     ]:
-        if shell.process_comm('command', '-v', proc, fail=False):
+        if shutil.which(proc) is None:
             raise FileNotFoundError(f'{proc} not found')
 
 
@@ -97,8 +96,4 @@ def server_call(debug: bool = False, **kwargs) -> None:
         _server_call(**kwargs)
 
 
-__all__ = [
-    'CONFIG',
-    'SWAYROOT',
-    'server_call'
-]
+__all__ = ['CONFIG', 'SWAYROOT', 'server_call']

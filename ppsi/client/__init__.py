@@ -23,11 +23,13 @@ ppsi client minimally interacts with a running ppsid server
 by pushing encoded bytes to a unix socket
 '''
 
-
-import typing
+import shutil
 import socket
+import typing
+
 from psprint import print
-from ..common import shell, defined
+
+from ..common import defined, shell
 from .command_codes import req2bytes
 from .command_line import cli
 
@@ -40,7 +42,7 @@ def check_installation() -> None:
     '''
     dependencies: typing.List[str] = []
     for proc in dependencies:
-        if shell.process_comm('command', '-v', proc, fail=False):
+        if shutil.which(proc) is None:
             raise FileNotFoundError(f'{proc} not found')
 
 
@@ -82,19 +84,17 @@ def client_call() -> None:
         client = socket.socket(family=socket.AF_UNIX, type=socket.SOCK_STREAM)
         client.connect(str(defined.SOCK_PATH))
         for cmd in commands:
-            if not(response and response == defined.COMM['OK']):
+            if not (response and response == defined.COMM['OK']):
                 print(
                     f'SERVER replied {int.from_bytes(response, "big"):0{2}x}',
-                    mark='warn'
-                )
+                    mark='warn')
                 break
             client.send(cmd)
             response = client.recv(defined.INST_SIZE)
         client.send(defined.COMM['BYE'])
     except (FileNotFoundError, ConnectionRefusedError):
         # scoket file not found
-        print('Confirm that the server is running correctly',
-              mark='err')
+        print('Confirm that the server is running correctly', mark='err')
         return
     except BrokenPipeError:
         if response == defined.COMM['BYE']:

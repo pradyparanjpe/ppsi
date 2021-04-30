@@ -30,24 +30,24 @@ Defines:
 
 '''
 
-
-import sys
-import typing
 import datetime
-import time
-import warnings
 import json
-from ..common import shell
-from .command_line import cli
-from .classes import SBar, BarSeg
+import shutil
+import sys
+import time
+import typing
+import warnings
+
 from .battery import BATTERY
-from .timer import TIME
+from .classes import BarSeg, SBar
+from .command_line import cli
 from .cpu import CPU
-from .ram import RAM
-from .network import IP_ADDR, NETSPEED
-from .temperature import TEMPERATURE
-from .uname import OSNAME
 from .load_average import LOAD
+from .network import IP_ADDR, NETSPEED
+from .ram import RAM
+from .temperature import TEMPERATURE
+from .timer import TIME
+from .uname import OSNAME
 
 
 def check_installation() -> None:
@@ -58,7 +58,7 @@ def check_installation() -> None:
     '''
     dependencies: typing.List[str] = []
     for proc in dependencies:
-        if shell.process_comm('command', '-v', proc, fail=False):
+        if shutil.which(proc) is None:
             raise FileNotFoundError(f'{proc} not found')
 
 
@@ -78,7 +78,8 @@ def pspbar():
             print('<span foreground=\\"#ff7f7fff\\"> Install psutil',
                   'meanwhile, falling back to basic:\t',
                   datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                  '</span>', flush=True)
+                  '</span>',
+                  flush=True)
             time.sleep(1)
     else:
         warnings.filterwarnings('ignore')
