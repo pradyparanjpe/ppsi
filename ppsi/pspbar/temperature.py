@@ -21,19 +21,19 @@
 Temperature monitoring and acting segment
 '''
 
+from typing import Dict
 
-import typing
 import psutil
+
 from .classes import BarSeg
 
-
 EMOJIS = {
-    "fire":    chr(0x1f525),
+    "fire": chr(0x1f525),
     "temp_100": '\uf2c7',
-    "temp_75":  '\uf2c8',
-    "temp_50":  '\uf2c9',
-    "temp_25":  '\uf2ca',
-    "temp_0":   '\uf2cb',
+    "temp_75": '\uf2c8',
+    "temp_50": '\uf2c9',
+    "temp_25": '\uf2ca',
+    "temp_0": '\uf2cb',
 }
 
 
@@ -42,7 +42,7 @@ class TempSeg(BarSeg):
     Temperature segment
     '''
     @staticmethod
-    def call_me(**_) -> typing.Dict[str, typing.Optional[str]]:
+    def call_me(**_) -> Dict[str, object]:
         '''
         Create Temperature summary string
 
@@ -54,7 +54,10 @@ class TempSeg(BarSeg):
 
         '''
         color = None
-        heat = psutil.sensors_temperatures()['coretemp'][0].current
+        try:
+            heat = psutil.sensors_temperatures()['coretemp'][0].current
+        except:
+            return {'vis': False}
         if heat > 80:
             sym, val = EMOJIS['fire'], f"{heat:.0f}"
             color = "#ff5f5fff"

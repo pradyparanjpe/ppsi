@@ -21,17 +21,17 @@
 (WIFI)Internet-monitoring segments
 '''
 
-
 import os
-import typing
+from pathlib import Path
+from typing import Dict
+
 import psutil
+
 from ..common import shell
 from ..server.wificonnect import refresh_wifi
 from .classes import BarSeg
 
-
-NETCHECK = os.path.join(os.path.dirname(__file__), 'shell_dep',
-                        'netcheck.sh')
+NETCHECK = Path(__file__).parent.joinpath('shell_dep/netcheck.sh')
 
 
 class IpAddrSeg(BarSeg):
@@ -39,7 +39,7 @@ class IpAddrSeg(BarSeg):
     ip address segment
     '''
     @staticmethod
-    def call_me(**_) -> typing.Dict[str, object]:
+    def call_me(**_) -> Dict[str, object]:
         '''
         Create IP ADDRESS string.
 
@@ -50,7 +50,7 @@ class IpAddrSeg(BarSeg):
             dictionary to update segment attributes
 '''
         color = 0x777777
-        stdout = shell.process_comm('bash', NETCHECK, fail=False)
+        stdout = shell.process_comm('sh', str(NETCHECK), fail=False)
         # print("NET_STATUS:", stdout, stderr)
         if stdout is None:
             return {'vis': False}
@@ -70,8 +70,10 @@ class IpAddrSeg(BarSeg):
         elif net_type & 1:
             color += 0x00003f  # #00003f  #007f3f  #7f7f3f #7f003f
         if addr.split(".")[:2] == ["192", "168"]:
-            return {'magnitude': ".".join(addr.split(".")[2:]),
-                    'color': f"#{hex(color)[2:]}"}
+            return {
+                'magnitude': ".".join(addr.split(".")[2:]),
+                'color': f"#{hex(color)[2:]}"
+            }
         return {'magnitude': addr}
 
     def callback(self, **_):
@@ -93,7 +95,7 @@ class NetSpeedSeg(BarSeg):
     Net speed segment
     '''
     @staticmethod
-    def call_me(mem=None, **_) -> typing.Dict[str, object]:
+    def call_me(mem=None, **_) -> Dict[str, object]:
         '''
         Total internet Speed
 
@@ -107,16 +109,22 @@ class NetSpeedSeg(BarSeg):
         net_stats = psutil.net_io_counters()
         if not net_stats:
             return {'mem': mem}
-        down_l = net_stats.bytes_recv / 1048576
-        up_l = net_stats.bytes_sent / 1048576
-        diff = (down_l - mem[1])/mem[0], (up_l - mem[2])/mem[0]
-        return {'magnitude': f"{diff[0]:.2f}/{diff[1]:.2f}",
-                'mem': [mem[0], down_l, up_l]}
+        try:
+            down_l = net_stats.bytes_recv / 0x100000
+            up_l = net_stats.bytes_sent / 0x100000
+        except AttributeError:
+            return {'vis': False}
+        diff = (down_l - mem[1]) / mem[0], (up_l - mem[2]) / mem[0]
+        return {
+            'magnitude': f"{diff[0]:.2f}/{diff[1]:.2f}",
+            'mem': [mem[0], down_l, up_l]
+        }
 
 
 IP_ADDR = IpAddrSeg(name="ip", symbol=chr(0x1f4f6), units="")
 '''ip address segment instance'''
 
-NETSPEED = NetSpeedSeg(name="netspeed", symbol='\u21f5\u25BC',
+NETSPEED = NetSpeedSeg(name="netspeed",
+                       symbol='\u21f5\u25BC',
                        units='\u25B2MB/s')
 '''netspeed segment instance'''

@@ -137,21 +137,11 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# Future features testing
-features/
-
-# sphinx built docs
+# built documentation
 docs/_*
 
-# debug
-debug/
+# vim linters, etc
+.vim/*
 
-# pypi upload
-pypi.sh
-
-# Icon svg
-ppsi/common/icon.svg
-
-# coding ide aids
-plan.org
-code_aid.txt
+# coding aids
+/code-aid/

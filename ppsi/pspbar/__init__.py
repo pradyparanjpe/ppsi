@@ -29,7 +29,6 @@ Defines:
   * ``SBar`` bar manager to update various segments at different intervals.
 
 '''
-
 import datetime
 import json
 import shutil
@@ -53,7 +52,7 @@ from .uname import OSNAME
 def check_installation() -> None:
     '''
     Check if the following dependencies are available:
-        * nothing here yet
+        - nothing here yet
 
     '''
     dependencies: typing.List[str] = []

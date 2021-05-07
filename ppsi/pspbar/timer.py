@@ -21,8 +21,9 @@
 Display date-time clock
 '''
 
-import typing
 import datetime
+from typing import Dict
+
 from .classes import BarSeg
 
 
@@ -35,7 +36,7 @@ class TimeSeg(BarSeg):
     '''
     full: bool = True
 
-    def call_me(self, **_) -> typing.Dict[str, str]:
+    def call_me(self, **_) -> Dict[str, str]:
         '''
         create Time summary string
 
@@ -47,10 +48,13 @@ class TimeSeg(BarSeg):
 
         '''
         if self.full:
-            return {'magnitude':
-                    datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
-        return {'magnitude':
-                datetime.datetime.now().strftime("%Y-%m-%d %I:%M:%S")}
+            return {
+                'magnitude':
+                datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+        return {
+            'magnitude': datetime.datetime.now().strftime("%Y-%m-%d %I:%M:%S")
+        }
 
     def callback(self, **_) -> None:
         '''

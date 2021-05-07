@@ -21,9 +21,10 @@
 CPU load monitor
 '''
 
+from typing import Dict
 
-import typing
 import psutil
+
 from .classes import BarSeg
 
 
@@ -31,7 +32,7 @@ class LoadSeg(BarSeg):
     '''
     Load Segment
     '''
-    def call_me(self, **_) -> typing.Dict[str, object]:
+    def call_me(self, **_) -> Dict[str, object]:
         '''
         Create CPU load summary string
 
@@ -43,8 +44,12 @@ class LoadSeg(BarSeg):
 
         '''
         color = None
-        load_avg = list(map(lambda x: x * 100 / psutil.cpu_count(),
-                            psutil.getloadavg()))
+        try:
+            load_avg = list(
+                map(lambda x: x * 100 / psutil.cpu_count(),
+                    psutil.getloadavg()))
+        except:
+            return {'vis': False}
         if load_avg[0] > 100:
             color = "#ff5f5fff"
         elif load_avg[0] > 80:

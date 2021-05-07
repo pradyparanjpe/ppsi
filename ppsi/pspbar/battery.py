@@ -21,20 +21,19 @@
 Battery monitor and action segment
 '''
 
+from typing import Dict
 
-import typing
 import psutil
+
 from ..common import shell
 from .classes import BarSeg
 
-
 EMOJIS = {
     "bat_100": '\uf240',
-    "bat_75":  '\uf240',
-    "bat_50":  '\uf242',
-    "bat_25":  '\uf243',
-    "bat_0":   '\uf244',
-
+    "bat_75": '\uf240',
+    "bat_50": '\uf242',
+    "bat_25": '\uf243',
+    "bat_0": '\uf244',
 }
 
 
@@ -42,7 +41,6 @@ class BatSeg(BarSeg):
     '''
     Battery segment,
     '''
-
     @staticmethod
     def _bat_act(conn: bool, fill: float, mem: int) -> int:
         '''
@@ -68,17 +66,21 @@ class BatSeg(BarSeg):
         else:
             mem = 0
             if fill < 20:
-                shell.notify('Battery Too Low', timeout=0,
+                shell.notify('Battery Too Low',
+                             timeout=0,
                              send_args=('-u', 'critical'))
             elif fill < 10:
                 shell.notify('Battery Too Low Suspending Session...',
-                             timeout=0, send_args=('-u', 'critical'))
+                             timeout=0,
+                             send_args=('-u', 'critical'))
             elif fill < 5:
-                shell.process_comm('systemctl', 'suspend',
-                                   timeout=-1, fail=False)
+                shell.process_comm('systemctl',
+                                   'suspend',
+                                   timeout=-1,
+                                   fail=False)
         return mem
 
-    def call_me(self, mem: int = None, **_) -> typing.Dict[str, object]:
+    def call_me(self, mem: int = None, **_) -> Dict[str, object]:
         '''
         Create Battery summary string
 
@@ -95,8 +97,11 @@ class BatSeg(BarSeg):
         bat_probe = psutil.sensors_battery()
         if not bat_probe:
             return {'symbol': EMOJIS['bat_0'], 'vis': False}
-        bat_fill = bat_probe.percent
-        bat_conn = bat_probe.power_plugged
+        try:
+            bat_fill = bat_probe.percent
+            bat_conn = bat_probe.power_plugged
+        except AttributeError:
+            return {'symbol': EMOJIS['bat_0'], 'vis': False}
         if bat_conn:
             sym_pango = ['<span foreground="#7fffffff">', '</span>']
         # Action

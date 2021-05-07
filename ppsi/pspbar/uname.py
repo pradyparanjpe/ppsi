@@ -21,9 +21,9 @@
 Display OS name
 '''
 
-
-import typing
 import os
+from typing import Dict
+
 from .classes import BarSeg
 
 
@@ -32,7 +32,7 @@ class OSNameSeg(BarSeg):
     OS name
     '''
     @staticmethod
-    def call_me(**_) -> typing.Dict[str, str]:
+    def call_me(**_) -> Dict[str, object]:
         '''
         Create Linux release string
 
@@ -43,7 +43,11 @@ class OSNameSeg(BarSeg):
             dict to update ``BarSeg`` properties
 
         '''
-        return {'magnitude': f"{os.uname().release.split('.')[-2]}"}
+        try:
+            name = os.uname().release.split('.')[-2]
+        except:
+            return {'vis': False}
+        return {'magnitude': name}
 
 
 OSNAME = OSNameSeg(name="uname", symbol=chr(0x1f427), color="#7f9fffff")

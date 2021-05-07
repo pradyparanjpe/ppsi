@@ -22,9 +22,10 @@ CPU monitor
 
 '''
 
+from typing import Dict
 
-import typing
 import psutil
+
 from .classes import BarSeg
 
 
@@ -33,7 +34,7 @@ class CpuSeg(BarSeg):
     CPU segment
     '''
     @staticmethod
-    def call_me(**_) -> typing.Dict[str, str]:
+    def call_me(**_) -> Dict[str, object]:
         '''
         Create CPU summary string
 
@@ -44,7 +45,10 @@ class CpuSeg(BarSeg):
             dict to update ``BarSeg`` properties
 
        '''
-        return {'magnitude': f"{psutil.cpu_percent():.2f}"}
+        try:
+            return {'magnitude': f"{psutil.cpu_percent():.2f}"}
+        except AttributeError:
+            return {'vis': False}
 
 
 CPU = CpuSeg(name="cpu", symbol=chr(0x1f9e0), units="%")

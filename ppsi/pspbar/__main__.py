@@ -21,7 +21,6 @@
 module call
 '''
 
-
 from . import pspbar
 
 if __name__ == "__main__":

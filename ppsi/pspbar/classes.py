@@ -23,10 +23,10 @@ pspbar classes
 
 '''
 
-
-import typing
-import sys
 import select
+import sys
+from typing import Any, Callable, Dict, List, Union
+
 from .sway_proto import SwayProtoIn, SwayProtoOut
 
 
@@ -53,16 +53,15 @@ class BarSeg():
         self.name = None
         self.vis = True
         self.symbol = ''
-        self.ml_tag: typing.List[str] = ['', '']
+        self.ml_tag: List[str] = ['', '']
         self.magnitude = ''
         self.units = ''
-        self.mem: typing.Union[int, float, str, list, None] = None
+        self.mem: Union[int, float, str, list, None] = None
         self.pango: bool = False
         self.__dict__.update(kwargs)
-        self.seg_json = SwayProtoIn(name=self.name,
-                                    full_text=self.full_text)
+        self.seg_json = SwayProtoIn(name=self.name, full_text=self.full_text)
 
-    def call_me(self, **_) -> typing.Dict[str, typing.Any]:
+    def call_me(self, **_) -> Dict[str, Any]:
         '''
         Dumb call
 
@@ -87,11 +86,10 @@ class BarSeg():
         Create full_text from symbol, ml_tag, magnitude, units
         '''
         if self.vis:
-            return ' '.join(
-                [self.symbol,
-                 self.ml_tag[0], self.magnitude, self.ml_tag[1],
-                 self.units]
-            )
+            return ' '.join([
+                self.symbol, self.ml_tag[0], self.magnitude, self.ml_tag[1],
+                self.units
+            ])
         return None
 
     @full_text.deleter
@@ -115,7 +113,7 @@ class BarSeg():
         '''
         self.seg_json.update(**kwargs)
 
-    def update(self, custom: typing.Callable = None, **kwargs) -> None:
+    def update(self, custom: Callable = None, **kwargs) -> None:
         '''
         Update magnitude and symbol
 
@@ -154,13 +152,15 @@ class SBar():
     '''
     def __init__(self) -> None:
         self.bar_str = ''
-        self.bar_segs: typing.List[BarSeg] = []
-        self.quick_segs: typing.List[BarSeg] = []
-        self.slow_segs: typing.List[BarSeg] = []
-        self.static_segs: typing.List[BarSeg] = []
+        self.bar_segs: List[BarSeg] = []
+        self.quick_segs: List[BarSeg] = []
+        self.slow_segs: List[BarSeg] = []
+        self.static_segs: List[BarSeg] = []
 
-    def add_segs(self, segment: BarSeg,
-                 interval: int = 1, position: int = None) -> None:
+    def add_segs(self,
+                 segment: BarSeg,
+                 interval: int = 1,
+                 position: int = None) -> None:
         '''
         Add segment to bar
 
@@ -212,14 +212,11 @@ class SBar():
         Update bar string
         '''
         self.bar_str = f", [{self.bar_str}]"
-        self.bar_str = ", [" + (
-            ','.join(
-                reversed(
-                    [str(seg.seg_json)
-                     for seg in filter(lambda x: x.vis, self.bar_segs)]
-                )
-            )
-        ) + "]"
+        self.bar_str = ", [" + (','.join(
+            reversed([
+                str(seg.seg_json)
+                for seg in filter(lambda x: x.vis, self.bar_segs)
+            ]))) + "]"
 
     def loop(self, period: int = 1, multi: int = 1) -> None:
         '''
