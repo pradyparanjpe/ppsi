@@ -21,14 +21,15 @@
 common shell calls functions
 '''
 
-
 import os
-import typing
 import subprocess
+from pathlib import Path
+from typing import List, Optional, Tuple
 
 
-def notify(info: str, timeout: int = 5,
-           send_args: typing.Tuple[str, ...] = None) -> None:
+def notify(info: str,
+           timeout: int = 5,
+           send_args: Tuple[str, ...] = None) -> None:
     '''
     Push ``info`` to notify-send for ``timeout`` seconds
 
@@ -44,9 +45,9 @@ def notify(info: str, timeout: int = 5,
     if os.environ.get("READTHEDOCS"):
         # RTD virutal environment
         return None
-    icon = os.path.join(os.path.dirname(__file__), 'icon.jpg')
+    icon = Path(__file__).parent.joinpath('icon.jpg')
     timeout *= 1000  # miliseconds
-    cmd = ['notify-send', '--icon', icon]
+    cmd = ['notify-send', '--icon', str(icon)]
     if send_args is not None:
         cmd.extend(send_args)
     if timeout > 0:
@@ -63,7 +64,8 @@ def notify(info: str, timeout: int = 5,
 def process_comm(*cmd: str,
                  p_name: str = 'processing',
                  timeout: int = None,
-                 fail: bool = True, **kwargs) -> typing.Optional[str]:
+                 fail: bool = True,
+                 **kwargs) -> Optional[str]:
     '''
     Generic process definition and communication
 
@@ -83,19 +85,17 @@ def process_comm(*cmd: str,
     if os.environ.get("READTHEDOCS"):
         # RTD virutal environment
         return None
-    cmd_l: typing.List[str] = list(cmd)
+    cmd_l: List[str] = list(cmd)
     if timeout is not None and timeout < 0:
         process = subprocess.Popen(cmd_l, **kwargs)  # DONT: *cmd_l here
         return None
-    process = subprocess.Popen(
-        cmd_l,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        **kwargs
-    )
+    process = subprocess.Popen(cmd_l,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE,
+                               text=True,
+                               **kwargs)
     stdout, stderr = process.communicate(timeout=timeout)
-    if stderr:
+    if process.returncode:
         notify(f'Error {p_name}: {stderr}')
         if fail:
             return None

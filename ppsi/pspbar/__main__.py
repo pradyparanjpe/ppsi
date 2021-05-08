@@ -22,6 +22,8 @@ module call
 '''
 
 from . import pspbar
+from .command_line import cli
 
 if __name__ == "__main__":
-    pspbar()
+    period, multi = cli()
+    pspbar(period, multi, -1)

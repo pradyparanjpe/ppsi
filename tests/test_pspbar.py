@@ -23,3 +23,14 @@ test ppsi client
 ppsi client
 '''
 
+from unittest import TestCase
+
+from ppsi.pspbar import pspbar
+
+
+class TestBar(TestCase):
+    """
+    Test that PSPBar always sends some output
+    """
+    def test_alive(self):
+        pspbar(1, 1, num_iter=4)

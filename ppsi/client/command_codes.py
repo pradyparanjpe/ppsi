@@ -23,13 +23,13 @@ PPSI client pre-processing
 process command/sub-command to be communicated by client to socket
 '''
 
-
-import typing
 import json
+from typing import Callable, Dict, Optional, Tuple
+
 from ..common import defined
 
 
-def workspaces(mod: str = None, **_) -> typing.Tuple[int, None]:
+def workspaces(mod: str = None, **_) -> Tuple[int, None]:
     '''
     Workspace actions.
 
@@ -56,7 +56,7 @@ def workspaces(mod: str = None, **_) -> typing.Tuple[int, None]:
     return subcmd, None
 
 
-def comm(mod: str = None, **_) -> typing.Tuple[int, None]:
+def comm(mod: str = None, **_) -> Tuple[int, None]:
     '''
     Communication instructions to ppsid server
     'reload' is Not working yet.
@@ -82,7 +82,7 @@ def comm(mod: str = None, **_) -> typing.Tuple[int, None]:
     return subcmd, None
 
 
-def blank(**_) -> typing.Tuple[int, None]:
+def blank(**_) -> Tuple[int, None]:
     '''
     Blank placeholder.
 
@@ -97,7 +97,7 @@ def blank(**_) -> typing.Tuple[int, None]:
     return 0x00, None
 
 
-def vol(mod: str, **kwargs) -> typing.Tuple[int, str]:
+def vol(mod: str, **kwargs) -> Tuple[int, str]:
     '''
     Volume action.
 
@@ -128,7 +128,7 @@ def vol(mod: str, **kwargs) -> typing.Tuple[int, str]:
     return subcmd, json.dumps(kwargs)
 
 
-def light(mod: str, **kwargs) -> typing.Tuple[int, str]:
+def light(mod: str, **kwargs) -> Tuple[int, str]:
     '''
     Brightness actions.
 
@@ -155,7 +155,7 @@ def light(mod: str, **kwargs) -> typing.Tuple[int, str]:
     return subcmd, json.dumps(kwargs)
 
 
-def system(mod: str, **_) -> typing.Tuple[int, None]:
+def system(mod: str, **_) -> Tuple[int, None]:
     '''
     Systemctl instructions.
 
@@ -168,7 +168,7 @@ def system(mod: str, **_) -> typing.Tuple[int, None]:
         **kwargs: all are ignored
 
     Returns:
-        typing.Tuple[code of mod, ``None``]
+        Tuple[code of mod, ``None``]
 
     '''
     mod_menu = {
@@ -181,7 +181,7 @@ def system(mod: str, **_) -> typing.Tuple[int, None]:
     return sub_byte, None
 
 
-CMD: typing.Dict[str, int] = {
+CMD: Dict[str, int] = {
     "comm": 0x00,
     "workspace": 0x10,
     "remote": 0x20,
@@ -193,8 +193,7 @@ CMD: typing.Dict[str, int] = {
     "system": 0xF0,
 }
 
-
-SUB_ARGS: typing.Dict[int, typing.Callable] = {
+SUB_ARGS: Dict[int, Callable] = {
     0x00: comm,
     0x10: workspaces,
     0x20: blank,
@@ -214,9 +213,9 @@ SUB_ARGS: typing.Dict[int, typing.Callable] = {
 }
 
 
-def req2bytes(req: str, **kwargs) -> typing.Tuple[typing.Optional[bytes],
-                                                  typing.Optional[bytes],
-                                                  typing.Optional[bytes]]:
+def req2bytes(
+        req: str,
+        **kwargs) -> Tuple[Optional[bytes], Optional[bytes], Optional[bytes]]:
     '''
     Convert request to encoded instruction bytes and
     byte-encoded serialized input data for the instruction.

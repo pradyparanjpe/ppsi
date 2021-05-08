@@ -218,12 +218,16 @@ class SBar():
                 for seg in filter(lambda x: x.vis, self.bar_segs)
             ]))) + "]"
 
-    def loop(self, period: int = 1, multi: int = 1) -> None:
+    def loop(self,
+             period: int = 1,
+             multi: int = 1,
+             num_iter: int = -1) -> None:
         '''
         The bar-update loop
         Args:
             period: Period between two updates in seconds.
             multi: Multiplier to period that gives slow update period.
+            num_iter: Number of iterations to loop and print
 
         Returns:
             ``None``
@@ -231,7 +235,10 @@ class SBar():
         '''
         self._static_vals()
         long_per = 0
-        while True:
+        while num_iter != 0:
+            # basic output
+            if num_iter >= 0:
+                num_iter -= 1
             self._quick_tick()
             if long_per == 0:
                 self._slow_tick()

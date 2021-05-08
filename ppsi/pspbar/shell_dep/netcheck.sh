@@ -59,7 +59,7 @@ clean_exit() {
 }
 
 check_ping() {
-    if [ -z "$ip_addr" ]; then
+    if [ -z "${ip_addr}" ]; then
         clean_exit 1
     fi
     $google_ping_cmd >/dev/null 2>&1 && inter=1

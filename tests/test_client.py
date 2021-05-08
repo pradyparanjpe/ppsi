@@ -23,12 +23,12 @@ test ppsi client
 ppsi client
 '''
 
-
-import unittest
 import json
+import unittest
+
+from ppsi.client.command_codes import (blank, comm, light, req2bytes, system,
+                                       vol, workspaces)
 from ppsi.common import defined
-from ppsi.client.command_codes import (workspaces, comm, blank, vol, light,
-                                       system, req2bytes)
 
 
 class test_client_command_codes(unittest.TestCase):
@@ -59,7 +59,7 @@ class test_client_command_codes(unittest.TestCase):
             'quit': 0x0E,
             'exit': 0x0E,
             'reload': 0x0E,
-            'default': None,
+            'default': 0x0E,
         }
         for sub, code in subcmd.items():
             byte_code, serial = comm(mod=sub)
@@ -70,9 +70,7 @@ class test_client_command_codes(unittest.TestCase):
         '''
         test function blank
         '''
-        subcmd = {
-            'default': None,
-        }
+        subcmd = {'default': 0}
         for sub, code in subcmd.items():
             byte_code, serial = blank(mod=sub)
             self.assertEqual(byte_code, code)
@@ -89,7 +87,6 @@ class test_client_command_codes(unittest.TestCase):
             '+': 0x01,
             'down': 0x02,
             '-': 0x02,
-            'default': None,
         }
         test_change = range(0, 100)
         for sub, code in subcmd.items():
@@ -135,8 +132,7 @@ class test_client_command_codes(unittest.TestCase):
         test function req2bytes
         '''
         test_inst, test_serial_bytes, test_serial_len_bytes = req2bytes(
-            'light', mod='+', change=5
-        )
+            'light', mod='+', change=5)
         serial = json.dumps({'change': 5})
         serial_len = len(serial)
         test_serial_len = int(test_serial_len_bytes.decode(defined.CODING))
