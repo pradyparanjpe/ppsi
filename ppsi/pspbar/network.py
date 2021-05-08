@@ -35,12 +35,12 @@ NETCHECK = Path(__file__).parent.joinpath('shell_dep/netcheck.sh')
 
 
 class IpAddrSeg(BarSeg):
-    '''
+    """
     ip address segment
-    '''
+    """
     @staticmethod
     def call_me(**_) -> Dict[str, object]:
-        '''
+        """
         Create IP ADDRESS string.
 
         Args:
@@ -48,10 +48,9 @@ class IpAddrSeg(BarSeg):
 
         Returns:
             dictionary to update segment attributes
-'''
+        """
         color = 0x777777
-        stdout = shell.process_comm('sh', str(NETCHECK), fail=False)
-        # print("NET_STATUS:", stdout, stderr)
+        stdout = shell.process_comm('sh', str(NETCHECK), fail=True)
         if stdout is None:
             return {'vis': False}
         addr = stdout.split("\t")[0]
@@ -77,12 +76,12 @@ class IpAddrSeg(BarSeg):
         return {'magnitude': addr}
 
     def callback(self, **_):
-        '''
+        """
         Update wifi connection, refresh
 
         Args:
             all are ignored
-        '''
+        """
         pid = os.fork()
         if pid == 0:
             # child
@@ -91,12 +90,12 @@ class IpAddrSeg(BarSeg):
 
 
 class NetSpeedSeg(BarSeg):
-    '''
+    """
     Net speed segment
-    '''
+    """
     @staticmethod
     def call_me(mem=None, **_) -> Dict[str, object]:
-        '''
+        """
         Total internet Speed
 
         Args:
@@ -105,7 +104,7 @@ class NetSpeedSeg(BarSeg):
 
         Returns:
             dictionary to update segment attributes
-        '''
+        """
         net_stats = psutil.net_io_counters()
         if not net_stats:
             return {'mem': mem}
@@ -122,9 +121,9 @@ class NetSpeedSeg(BarSeg):
 
 
 IP_ADDR = IpAddrSeg(name="ip", symbol=chr(0x1f4f6), units="")
-'''ip address segment instance'''
+"""ip address segment instance"""
 
 NETSPEED = NetSpeedSeg(name="netspeed",
                        symbol='\u21f5\u25BC',
                        units='\u25B2MB/s')
-'''netspeed segment instance'''
+"""netspeed segment instance"""

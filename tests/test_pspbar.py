@@ -23,14 +23,38 @@ test ppsi client
 ppsi client
 '''
 
+from pathlib import Path
 from unittest import TestCase
 
+import ppsi
+from ppsi.common import shell
 from ppsi.pspbar import pspbar
+from ppsi.pspbar.network import IP_ADDR
+
+
+class TestNtwk(TestCase):
+    """
+    Test IpAddrSeg
+    """
+    def test_ip_addr_seg(self):
+        """
+        Test ip address segment in various contexts
+        """
+        IP_ADDR.call_me()
+        print(
+            str(
+                Path(ppsi.__file__).parent.joinpath(
+                    'pspbar/shell_dep/netcheck.sh')))
+        shell.process_comm('sh',
+                           str(
+                               Path(ppsi.__file__).parent.joinpath(
+                                   'pspbar/shell_dep/netcheck.sh')),
+                           fail=False).split("\t")[2]
 
 
 class TestBar(TestCase):
     """
     Test that PSPBar always sends some output
     """
-    def test_alive(self):
+    def untest_alive(self):
         pspbar(1, 1, num_iter=4)
