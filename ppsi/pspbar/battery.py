@@ -77,7 +77,7 @@ class BatSeg(BarSeg):
                 shell.process_comm('systemctl',
                                    'suspend',
                                    timeout=-1,
-                                   fail=False)
+                                   fail='notify')
         return mem
 
     def call_me(self, mem: int = None, **_) -> Dict[str, object]:

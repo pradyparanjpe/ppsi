@@ -50,11 +50,11 @@ class IpAddrSeg(BarSeg):
             dictionary to update segment attributes
         """
         color = 0x777777
-        stdout = shell.process_comm('sh', str(NETCHECK), fail=True)
+        stdout = shell.process_comm('sh', str(NETCHECK))
         if stdout is None:
             return {'vis': False}
         addr = stdout.split("\t")[0]
-        net_type = int(stdout.split("\t")[2])
+        net_type = int(stdout.split("\t")[2].rstrip())
         if net_type & 8:
             # internet connected
             color += 0x007f00  # #007f00

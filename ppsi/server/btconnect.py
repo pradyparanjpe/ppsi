@@ -23,9 +23,11 @@ bluez api to handle bluetooth connections
 calls bluetoothctl for connections
 '''
 
-import typing
 import re
+import typing
+
 from launcher_menus import menu
+
 from ..common import shell
 
 
@@ -34,13 +36,12 @@ def query_known() -> typing.Dict[str, str]:
     Query bluetoothctl for known bluetooth devices
 
     Returns:
-        names: MAC
+        name: MAC
     '''
     known_devs = {}
-    dev_pat = re.compile(
-        r'Device ?((?:.{2}:){5}.{2}) +?(.*)'
-    )
-    bt_ctl_out = shell.process_comm('bluetoothctl', 'devices',
+    dev_pat = re.compile(r'Device ?((?:.{2}:){5}.{2}) +?(.*)')
+    bt_ctl_out = shell.process_comm('bluetoothctl',
+                                    'devices',
                                     p_name='remembering')
     if bt_ctl_out is None:
         # Error in process call. Let the user type
@@ -64,13 +65,16 @@ def connect_bluetooth(**_) -> int:
         error code
     '''
     known_devs = query_known()
-    choice = menu(opts=known_devs.keys(), prompt="Connect_to:")
-    if choice in known_devs.keys():
+    choice = menu(opts=list(known_devs.keys()), prompt="Connect_to:")
+    if choice is None:
+        # no selection
+        return 0
+    if choice in known_devs:
         # connect to known device
-        response = shell.process_comm(
-            'bluetoothctl', 'connect', known_devs[choice],
-            p_name='connecting'
-        )
+        response = shell.process_comm('bluetoothctl',
+                                      'connect',
+                                      known_devs[choice],
+                                      p_name='connecting')
         if response is None:
             shell.notify('`bluetoothctl connect` failed.\
             Is the daemon healthy?')

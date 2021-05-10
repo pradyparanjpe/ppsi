@@ -20,19 +20,17 @@
 '''
 Psi Pythonic Sway Interface
 
-Still under testing
-
 Person ⟷ Python ⟷ Sway - Interface
 to deal with various faculties
 that are not offerred by sway such as:
 
- * work-space cycling
- * work-space-specific program binding
- * visual feedback for volume and light
+ - work-space cycling
+ - work-space-specific program binding
+ - visual feedback for volume and light
 
 Employing:
- * a ppsid server that is contacted by
- * a ppsi client
+ - a ppsid server that is contacted by
+ - a ppsi client
 
 AND
 
@@ -54,4 +52,4 @@ def check_installation() -> None:
 
 __all__ = ['server', 'client', 'pspbar']
 
-__version__ = '1!1.0.3'
+__version__ = '1!1.0.4'

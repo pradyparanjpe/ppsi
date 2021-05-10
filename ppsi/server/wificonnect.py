@@ -25,10 +25,11 @@ If known, connect. If unknown, ask for password
 
 '''
 
-
-import typing
 import re
-from launcher_menus.themes import password_prompt, menu
+import typing
+
+from launcher_menus.themes import menu, password_prompt
+
 from ..common import shell
 
 
@@ -40,10 +41,10 @@ def query_known() -> typing.List[str]:
         Known Wifi AP names
     '''
     known_aps = []
-    conn_pat = re.compile(
-        r'(.+?) +?\w{8}-\w{4}-\w{4}-\w{4}-\w{12}  wifi +'
-    )
-    stdout = shell.process_comm('nmcli', 'connection', 'show',
+    conn_pat = re.compile(r'(.+?) +?\w{8}-\w{4}-\w{4}-\w{4}-\w{12}  wifi +')
+    stdout = shell.process_comm('nmcli',
+                                'connection',
+                                'show',
                                 p_name='remembering')
     if stdout is None:
         # Error in process call. Let the user type
@@ -64,12 +65,14 @@ def query_available() -> typing.List[str]:
     '''
     available_aps = []
     info_pat = re.compile(
-        r'\*? +(?:\w{2}:){5}\w{2} +(.+?) +\w+? +\d+ +.+? .+? +(\d+?) +'
-    )
-    stdout = shell.process_comm(
-        'nmcli', 'device', 'wifi', 'list', '--rescan', 'yes',
-        p_name='discovering'
-    )
+        r'\*? +(?:\w{2}:){5}\w{2} +(.+?) +\w+? +\d+ +.+? .+? +(\d+?) +')
+    stdout = shell.process_comm('nmcli',
+                                'device',
+                                'wifi',
+                                'list',
+                                '--rescan',
+                                'yes',
+                                p_name='discovering')
     if stdout is None:
         # Error in process call. Let the user type
         return []
@@ -99,21 +102,17 @@ def refresh_wifi(**_) -> int:
     if not available_aps:
         shell.notify('No wifi network available', timeout=0)
         return 1
-    choice = menu(
-        opts=[':'.join(info)
-              for info in sorted(
-                      available_aps,
-                      key=(lambda x: int(x[-1])
-                           ),
-                      reverse=True)],
-        prompt="connect to"
-    )
+    choice = menu(opts=[
+        ':'.join(info) for info in sorted(
+            available_aps, key=(lambda x: int(x[-1])), reverse=True)
+    ],
+                  prompt="connect to")
     if choice is None:
         return 0
     choice, *_ = choice.split(":")
     cmd = ['nmcli', 'device', 'wifi', 'connect', choice.replace(' ', "\\ ")]
     if choice not in known_aps:
-        wifi_pass = password_prompt(opts=[], fail=True)
+        wifi_pass = password_prompt(opts=[], fail='notify')
         cmd += ['password', wifi_pass.replace(' ', "\\ ")]
     stdout = shell.process_comm(*cmd, p_name='connecting')
     if stdout is None or 'error' in stdout.lower():

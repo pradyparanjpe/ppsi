@@ -41,15 +41,20 @@ class TestNtwk(TestCase):
         Test ip address segment in various contexts
         """
         IP_ADDR.call_me()
-        print(
+        ip_out = shell.process_comm(
+            'sh',
             str(
                 Path(ppsi.__file__).parent.joinpath(
-                    'pspbar/shell_dep/netcheck.sh')))
-        shell.process_comm('sh',
-                           str(
-                               Path(ppsi.__file__).parent.joinpath(
-                                   'pspbar/shell_dep/netcheck.sh')),
-                           fail=False).split("\t")[2]
+                    'pspbar/shell_dep/netcheck.sh')), "-r=0", "-n=5")
+        self.assertIsNotNone(ip_out)
+        print(ip_out)
+        self.assertEqual(int(ip_out.split('\t')[2]), 5)
+        ip_out = shell.process_comm(
+            'sh',
+            str(
+                Path(ppsi.__file__).parent.joinpath(
+                    'pspbar/shell_dep/netcheck.sh', "-r=1")))
+        self.assertIsNone(ip_out)
 
 
 class TestBar(TestCase):

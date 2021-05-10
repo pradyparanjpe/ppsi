@@ -21,9 +21,7 @@
 power command mode api using launcher_menus
 '''
 
-
 from ..common import shell
-
 
 syscmd = ['suspend', 'poweroff', 'reboot', 'reboot --firmware-setup']
 
@@ -32,8 +30,11 @@ def adjust_lights():
     '''
     set light to 50%
     '''
-    shell.process_comm('light', '-S', '50',
-                       p_name='adjusting light', fail=False)
+    shell.process_comm('light',
+                       '-S',
+                       '50',
+                       p_name='adjusting light',
+                       fail='notify')
 
 
 def system(subcmd: int = 1) -> int:
@@ -53,5 +54,5 @@ def system(subcmd: int = 1) -> int:
     subcmd %= len(syscmd)
     adjust_lights()
     verb = syscmd[subcmd - 1].split(" ")
-    shell.process_comm('systemctl', *verb, fail=False)
+    shell.process_comm('systemctl', *verb, fail='notify')
     return 0
