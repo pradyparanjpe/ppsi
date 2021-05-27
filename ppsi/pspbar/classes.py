@@ -253,3 +253,4 @@ class SBar():
                 for seg in filter(lambda x: x.name == sway_comm.name,
                                   self.bar_segs):
                     seg.callback(swayfeed=sway_comm)
+                long_per = 0
