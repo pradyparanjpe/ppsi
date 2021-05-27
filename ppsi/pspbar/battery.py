@@ -21,7 +21,9 @@
 Battery monitor and action segment
 '''
 
-from typing import Dict
+from re import findall
+from shutil import which
+from typing import Dict, Optional
 
 import psutil
 
@@ -36,11 +38,44 @@ EMOJIS = {
     "bat_0": '\uf244',
 }
 
+UPOWER_AVAIL = bool(which("upower"))
+
+
+def bat_time() -> Optional[float]:
+    """
+    Parse upower and estimate
+
+    Returns
+        Estimated hours to empty/full battery if available, else ``None``
+    """
+    if not UPOWER_AVAIL:
+        return None
+    upower_dump = shell.process_comm("upower", "-d")
+    if upower_dump is None:
+        return None
+    matches = findall(r"time +to +\w+: +(.+?) +(.+)", upower_dump)
+    if not matches:
+        return None
+    time_str, units = matches[0]
+    try:
+        hours = float(time_str) * {
+            "days": 24,
+            "hours": 1,
+            "minutes": 1 / 60,
+            "seconds": 1 / 3600
+        }.get(units, 1)
+    except (AttributeError, ValueError, IndexError, KeyError):
+        return None
+    return hours
+
 
 class BatSeg(BarSeg):
     '''
     Battery segment,
     '''
+    # display: 0 -> None, 1 -> percentage, [2 -> estimated time]
+    display = -1 % (int(UPOWER_AVAIL) + 2)
+
     @staticmethod
     def _bat_act(conn: bool, fill: float, mem: int) -> int:
         '''
@@ -64,16 +99,17 @@ class BatSeg(BarSeg):
                 # Send only 5 notifications
                 shell.notify('Battery_charged')
         else:
+            time_left = bat_time() or 0xffff
             mem = 0
-            if fill < 20:
+            if fill < 20 or time_left < (1 / 6):
                 shell.notify('Battery Too Low',
                              timeout=0,
                              send_args=('-u', 'critical'))
-            elif fill < 10:
+            elif fill < 10 or time_left < (1 / 12):
                 shell.notify('Battery Too Low Suspending Session...',
                              timeout=0,
                              send_args=('-u', 'critical'))
-            elif fill < 5:
+            elif fill < 5 or time_left < (1 / 24):
                 shell.process_comm('systemctl',
                                    'suspend',
                                    timeout=-1,
@@ -108,22 +144,42 @@ class BatSeg(BarSeg):
         mem = self._bat_act(conn=bat_conn, fill=bat_fill, mem=mem or 0)
         # returns
         if bat_fill >= 100:
-            sym, val, color = EMOJIS['bat_100'], "100", "#7fffffff"
+            sym, color = EMOJIS['bat_100'], "#7fffffff"
         elif bat_fill > 75:
-            sym, val, color = EMOJIS['bat_75'], f"{bat_fill:.2f}", "#ffff7fff"
+            sym, color = EMOJIS['bat_75'], "#7fff7fff"
         elif bat_fill > 50:
-            sym, val, color = EMOJIS['bat_50'], f"{bat_fill:.2f}", "#ffaf7fff"
+            sym, color = EMOJIS['bat_50'], "#ffff7fff"
         elif bat_fill > 25:
-            sym, val, color = EMOJIS['bat_25'], f"{bat_fill:.2f}", "#ff7f7fff"
+            sym, color = EMOJIS['bat_25'], "#ff7f7fff"
         else:
-            sym, val, color = EMOJIS['bat_0'], f"{bat_fill:.2f}", "#ff5f5fff"
+            sym, color = EMOJIS['bat_0'], "#ff5f5fff"
+        if self.display == 2:
+            # time
+            time = bat_time()
+            if time is None:
+                val = f"{bat_fill:.2f} %"
+            else:
+                val = f"{int(time)}:{int((time%1) * 60)}"
+        elif self.display == 1:
+            # battery in percentage
+            val = f"{bat_fill:.2f}"
+        else:
+            val = ''
+
         sym = sym_pango[0] + sym + sym_pango[1]
         return {'symbol': sym, 'magnitude': val, 'mem': mem, 'color': color}
+
+    def callback(self, **_) -> None:
+        """
+        toggle between percentage and estimated time
+        """
+        self.display = (self.display + 1) % (int(UPOWER_AVAIL) + 2)
+        self.units = ["", "%", "h"][self.display]
 
 
 BATTERY = BatSeg(name="battery",
                  symbol=EMOJIS['bat_0'],
-                 units="%",
+                 units="h" if UPOWER_AVAIL else "%",
                  mem=0,
                  pango=True)
 '''

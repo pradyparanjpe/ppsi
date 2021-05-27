@@ -41,6 +41,7 @@ Prerequisites
    - pulseaudio
    - light
    - waypipe
+   - upower
 
 pip
 ====

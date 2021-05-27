@@ -52,4 +52,4 @@ def check_installation() -> None:
 
 __all__ = ['server', 'client', 'pspbar']
 
-__version__ = '1!1.0.4'
+__version__ = '1!1.1.0'
