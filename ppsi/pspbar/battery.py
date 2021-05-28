@@ -121,13 +121,13 @@ class BatSeg(BarSeg):
                 sway_nag("Battery Too Low Suspending Session...")
             elif fill < BAT_CONF['minimal'] or time_left < (1 / 6):
                 mem -= 1
-                if mem % 5:
+                if mem % 5 == 0:
                     shell.notify('Battery Too Low',
                                  timeout=0,
                                  send_args=('-u', 'critical'))
             elif fill < BAT_CONF['low'] or time_left < (1 / 3):
                 mem -= 1
-                if mem % 10:
+                if mem % 10 == 0:
                     shell.notify('Low battery', timeout=0)
         return mem
 
