@@ -25,7 +25,10 @@ from typing import Dict
 
 import psutil
 
+from . import CONFIG
 from .classes import BarSeg
+
+RAM_CONFIG = CONFIG['ram']
 
 
 class RamSeg(BarSeg):
@@ -46,9 +49,11 @@ class RamSeg(BarSeg):
         except AttributeError:
             return {'vis': False}
         color = None
-        if ram_fill > 80:
+        if ram_fill > RAM_CONFIG['red']:
             color = "#ff5f5fff"
-        elif ram_fill > 60:
+        elif ram_fill > RAM_CONFIG['orange']:
+            color = "#ffaf7fff"
+        elif ram_fill > RAM_CONFIG['yellow']:
             color = "#ffff5fff"
         return {'magnitude': f"{ram_fill:.0f}", 'color': color}
 

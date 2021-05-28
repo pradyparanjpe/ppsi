@@ -34,14 +34,13 @@ Some events will trigger function calls:
 
 '''
 
-
-import os
 import subprocess
-import pathlib
-from .workspaces import ws_mod
-from .volume import vol_feedback
-from .light import light_feedback
+from pathlib import Path
+
 from . import SWAYROOT
+from .light import light_feedback
+from .volume import vol_feedback
+from .workspaces import ws_mod
 
 
 class EventLogger():
@@ -52,12 +51,12 @@ class EventLogger():
         root: root in which, a hidden log-file '.ppsi.log' is maintained
 
     '''
-    def __init__(self, wob: subprocess.Popen, root: str = SWAYROOT) -> None:
-        self.logfile = os.path.join(root, '.ppsi.log')
+    def __init__(self, wob: subprocess.Popen, root: Path = SWAYROOT) -> None:
+        self.logfile = root.joinpath('.ppsi.log')
         self.wob = wob
-        if os.path.exists(self.logfile):
+        if self.logfile.is_file():
             # old logs will get written to .ppsi.log.last_session
-            os.rename(self.logfile, self.logfile + '.last_session')
+            self.logfile.rename(self.logfile.with_suffix('.log.last_session'))
         self.log = open(self.logfile, 'a')
         self.feedbacks = {
             0x10: (ws_mod, ()),  # workspace changed

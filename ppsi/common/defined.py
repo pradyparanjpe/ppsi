@@ -22,30 +22,28 @@ Global definitions for ppsi socket that are inhereted by both
 `ppsid` server and `ppsi` client
 '''
 
-
 import os
-import typing
-
+from pathlib import Path
+from typing import List, Union
 
 # location of socket in a RUNTIME DIRRECTORY
-RUN_LOC: typing.List[typing.Optional[str]] = [
+RUN_LOC: List[Union[Path, str, None]] = [
     os.environ.get('XDG_RUNTIME_DIR'),  # Good practice
-    os.path.join('/run/user', os.environ.get('UID', 'current_user')),  # hard
-    os.path.join(os.environ['HOME'], '.runtime')  # Alas!
+    Path('/run/user').joinpath(os.environ.get('UID', 'current_user')),  # hard
+    Path(os.environ['HOME']).joinpath('.runtime')  # Alas!
 ]
 '''
 Default locations of runtime directory:
-    * From environment ${XDG_RUNTIME_DIR} ELSE
-    * as hardcoded /run/user/$UID ELSE
+    * From environment ${XDG_RUNTIME_DIR} else
+    * as hardcoded /run/user/${UID:-current_user} else
     * as ${HOME}/.runtime
 '''
 
 for location in RUN_LOC:
-    if location is not None and os.path.isdir(location):
-        SOCK_PARENT = os.path.join(location, 'sway')
-        if not os.path.isdir(SOCK_PARENT):
-            os.makedirs(SOCK_PARENT, exist_ok=True)
-        SOCK_PATH = os.path.join(SOCK_PARENT, 'ppsi.sock')
+    if location is not None and Path(location).is_dir():
+        SOCK_PARENT = Path(location).joinpath('sway')
+        SOCK_PARENT.mkdir(parents=True, exist_ok=True)
+        SOCK_PATH = SOCK_PARENT.joinpath('ppsi.sock')
         break
 
 INST_SIZE = 0x1  # 1 byte(s) = 16 communications + 15 commands * 16 subcommands
@@ -64,11 +62,11 @@ character encoding used by server and client
 '''
 
 COMM = {
-    'OK':     0x00.to_bytes(1, 'big'),  # OK
+    'OK': 0x00.to_bytes(1, 'big'),  # OK
     'ACCEPT': 0x0A.to_bytes(1, 'big'),  # Please Accept JSON of kwargs
-    'BYE':    0x0B.to_bytes(1, 'big'),  # BYE BYE
-    'EXIT':   0x0E.to_bytes(1, 'big'),  # Request Exit server
-    'FAULT':  0x0F.to_bytes(1, 'big'),  # Fault (ERROR)
+    'BYE': 0x0B.to_bytes(1, 'big'),  # BYE BYE
+    'EXIT': 0x0E.to_bytes(1, 'big'),  # Request Exit server
+    'FAULT': 0x0F.to_bytes(1, 'big'),  # Fault (ERROR)
 }
 '''
 server-client communication commands 0x00 to 0x0F

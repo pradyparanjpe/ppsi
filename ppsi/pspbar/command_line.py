@@ -22,12 +22,11 @@ Command line parser for pspbar
 
 '''
 
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
+from typing import Optional, Tuple
 
-import typing
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
-
-def cli() -> typing.Tuple[int, int]:
+def cli() -> Tuple[Optional[int], Optional[int]]:
     '''
     Parse command line
 
@@ -39,9 +38,15 @@ def cli() -> typing.Tuple[int, int]:
 
     '''
     parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
-    parser.add_argument("period", type=int, default=1, nargs='?',
+    parser.add_argument("period",
+                        type=int,
+                        default=None,
+                        nargs='?',
                         help="period between successive updates in seconds")
-    parser.add_argument("-m", "--multi", type=int, default=1,
+    parser.add_argument("-m",
+                        "--multi",
+                        type=int,
+                        default=None,
                         help="multple of 'period' to update other stats")
     args = parser.parse_args()
     return args.period, args.multi

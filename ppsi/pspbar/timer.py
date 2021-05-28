@@ -24,7 +24,10 @@ Display date-time clock
 import datetime
 from typing import Dict
 
+from . import CONFIG
 from .classes import BarSeg
+
+TIME_CONFIG = CONFIG['time']
 
 
 class TimeSeg(BarSeg):
@@ -34,7 +37,12 @@ class TimeSeg(BarSeg):
     Attributes:
         full = full 24 hour format?
     '''
-    full: bool = True
+    def __init__(self, **kwargs):
+        self.fmt24 = TIME_CONFIG.get('fmt24') or "%Y-%m-%d %H:%M:%S"
+        self.fmt12 = TIME_CONFIG.get('fmt12') or "%Y-%m-%d %I:%M:%S"
+        self.full: bool = TIME_CONFIG['full']
+        self.strfmt = self.fmt24 if self.full else self.fmt12
+        super().__init__(**kwargs)
 
     def call_me(self, **_) -> Dict[str, str]:
         '''
@@ -47,14 +55,7 @@ class TimeSeg(BarSeg):
             dict to update ``BarSeg`` properties
 
         '''
-        if self.full:
-            return {
-                'magnitude':
-                datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
-        return {
-            'magnitude': datetime.datetime.now().strftime("%Y-%m-%d %I:%M:%S")
-        }
+        return {'magnitude': datetime.datetime.now().strftime(self.strfmt)}
 
     def callback(self, **_) -> None:
         '''
@@ -65,6 +66,7 @@ class TimeSeg(BarSeg):
 
         '''
         self.full = not self.full
+        self.strfmt = self.fmt24 if self.full else self.fmt12
 
 
 TIME = TimeSeg(name="time", symbol='\u23f0')

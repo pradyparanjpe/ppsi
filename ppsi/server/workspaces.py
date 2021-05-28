@@ -27,13 +27,13 @@ Workspace-order-cycle for quick cycling/switching.
 
 '''
 
-
+import json
 import os
 import typing
-import json
-from ..common import shell, misc
+
+from ..common import misc, shell
 from . import CONFIG, SWAYROOT
-from .sway_api import sway_assign, sway_nag, sway_ws, sway_query, sway_bind
+from .sway_api import sway_assign, sway_bind, sway_nag, sway_query, sway_ws
 
 
 def get_ws() -> typing.Optional[str]:
@@ -69,8 +69,11 @@ class WorkSpace():
             suicidal: forget this workspace if unfocused and without containers
 
     '''
-    def __init__(self, index: str, keybindings: dict = None,
-                 assignments: typing.Dict[str, list] = None, **kwargs) -> None:
+    def __init__(self,
+                 index: str,
+                 keybindings: dict = None,
+                 assignments: typing.Dict[str, list] = None,
+                 **kwargs) -> None:
         self.index = index
         self.name = self.index
         self.suicidal = kwargs.get('suicidal', False)
@@ -224,7 +227,7 @@ class SwayWsMan():
         self.bind_base()
         self.cycle_order = CycleOrder()
         self.cycle_order += self.which_workspace((get_ws()))[0]
-        self._unbind: typing.Callable = lambda *args, **kwargs: None
+        self._unbind: typing.Callable = lambda *_, **__: None
 
     @property
     def unbind(self) -> typing.Callable:
@@ -236,7 +239,7 @@ class SwayWsMan():
 
     @unbind.deleter
     def unbind(self):
-        self._unbind = lambda *args, **kwargs: None
+        self._unbind = lambda *_, **__: None
 
     @unbind.setter
     def unbind(self, method):
@@ -248,6 +251,7 @@ class SwayWsMan():
         '''
         def wrapper(method=method, manager=self, **kwargs):
             return method(manager=manager, **kwargs)
+
         return wrapper
 
     @staticmethod
@@ -257,15 +261,11 @@ class SwayWsMan():
         bind $mod + variable + Tab to cycling through workspaces
         bind Alt+Ctrl+p to edit ppsi.yml file in ``SWAYROOT``
         '''
-        editor = os.environ.get(
-            "EDITOR",
-            f"{os.environ.get('defterm', 'xterm')} -- vi"
-        )
-        ppsi_yml_file = os.path.join(SWAYROOT, "ppsi.yml")
-        sway_bind("Ctrl+Mod1+p",
-                  f'"exec {editor} {ppsi_yml_file}"')
-        sway_bind("$mod+Tab",
-                  '"exec --no-startup-id ppsi workspace latest"')
+        editor = os.environ.get("EDITOR",
+                                f"{os.environ.get('defterm', 'xterm')} -- vi")
+        ppsi_yml_file = SWAYROOT.joinpath("ppsi.yml")
+        sway_bind("Ctrl+Mod1+p", f'"exec {editor} {ppsi_yml_file}"')
+        sway_bind("$mod+Tab", '"exec --no-startup-id ppsi workspace latest"')
         sway_bind("$mod+Shift+Tab",
                   '"exec --no-startup-id ppsi workspace oldest"')
         sway_bind("$mod+Ctrl+Tab",
@@ -341,10 +341,9 @@ class SwayWsMan():
                 sway_assign(f'[{disp}="{app}"]', w_sp.name)
         sway_bind(
             f'$mod+{w_sp.index}',
-            f'"workspace {w_sp.name}, exec --no-startup-id ppsi workspace"'
-        )
-        sway_bind(f'$mod+Shift+{w_sp.index}', 'move', 'container',
-                  'to', 'workspace', w_sp.name)
+            f'"workspace {w_sp.name}, exec --no-startup-id ppsi workspace"')
+        sway_bind(f'$mod+Shift+{w_sp.index}', 'move', 'container', 'to',
+                  'workspace', w_sp.name)
         self.assigned.append(w_sp)
 
     def destroy_ws(self, w_sp: WorkSpace) -> None:
@@ -366,10 +365,10 @@ class SwayWsMan():
         self.assigned.remove(w_sp)
         self.cycle_order.remove(idx)
 
-    def which_workspace(self, name: str = None) -> typing.Tuple[
-            typing.Optional[int],
-            typing.Optional[WorkSpace]
-    ]:
+    def which_workspace(
+        self,
+        name: str = None
+    ) -> typing.Tuple[typing.Optional[int], typing.Optional[WorkSpace]]:
         '''
         Args:
             name: name of workspace
@@ -408,6 +407,7 @@ def ws_mod(subcmd: int = 0x00, manager: SwayWsMan = PPSI_WS_MAN) -> int:
         error code
 
     '''
+    current_id = None
     if subcmd == 0x00:
         curr_name = get_ws()
         if curr_name is None:

@@ -25,7 +25,10 @@ from typing import Dict
 
 import psutil
 
+from . import CONFIG
 from .classes import BarSeg
+
+LOAD_CONFIG = CONFIG['load']
 
 
 class LoadSeg(BarSeg):
@@ -50,11 +53,11 @@ class LoadSeg(BarSeg):
                     psutil.getloadavg()))
         except:
             return {'vis': False}
-        if load_avg[0] > 100:
+        if load_avg[0] > LOAD_CONFIG['red']:
             color = "#ff5f5fff"
-        elif load_avg[0] > 80:
+        elif load_avg[0] > LOAD_CONFIG['orange']:
             color = "#ffaf7fff"
-        elif load_avg[0] > 60:
+        elif load_avg[0] > LOAD_CONFIG['yellow']:
             color = "#ffff5fff"
         else:
             return {'vis': False}

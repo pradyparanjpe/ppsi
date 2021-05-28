@@ -24,8 +24,8 @@ parse command line to
     start ppsid server
 '''
 
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from .read_config import read_config
 
 
@@ -35,13 +35,16 @@ def cli():
     '''
     swayroot, config = None, None
     parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
-    parser.add_argument(
-        '-f', '--conf-file', type=str, help='config yaml file',
-        default=None)
-    parser.add_argument(
-        '-r', '--sway-root', type=str, help='root for sway files',
-        default=None
-    )
+    parser.add_argument('-f',
+                        '--conf-file',
+                        type=str,
+                        help='config yaml file',
+                        default=None)
+    parser.add_argument('-r',
+                        '--sway-root',
+                        type=str,
+                        help='root for sway files',
+                        default=None)
     args = parser.parse_args()
     if args.sway_root is not None or args.conf_file is not None:
         swayroot, config = read_config(custom_conf=args.conf_file,

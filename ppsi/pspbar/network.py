@@ -82,7 +82,11 @@ class IpAddrSeg(BarSeg):
         Args:
             all are ignored
         """
-        refresh_wifi()
+        pid = os.fork()
+        if pid == 0:
+            # child
+            refresh_wifi()
+            exit()
 
 
 class NetSpeedSeg(BarSeg):

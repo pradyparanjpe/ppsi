@@ -23,20 +23,22 @@ Call remote commands through ssh/[waypipe]
 Interactive username, server, interface, application
 that is temporarily remembered till reboot.
 
-TODO: Offer ossify temporary information.
+TODO: Offer to ossify temporary information.
 
 '''
 
-
 import os
-import typing
+from pathlib import Path
+from typing import List, Optional, Tuple
+
 import yaml
 from launcher_menus import menu  # type: ignore
-from . import CONFIG
+
 from ..common import shell
+from . import CONFIG
 
 
-def handle_tmp_cfg() -> typing.Tuple[str, dict]:
+def handle_tmp_cfg() -> Tuple[Path, dict]:
     '''
     look for temporary configuration file to store learnt remote addresses,
     user-names and graphical applications for the session
@@ -53,10 +55,10 @@ def handle_tmp_cfg() -> typing.Tuple[str, dict]:
     else:
         # uid is known
         # try for hard path
-        basepath = os.path.join('/run', 'user', str(uid))
+        basepath = Path('/run').joinpath('user', str(uid))
     xdg_run = os.environ.get('XDG_RUNTIME_DIR', str(basepath))
-    tmp_cfg = os.path.join(xdg_run, 'sway', 'ppsi', 'remote.yml')
-    if os.path.exists(tmp_cfg):
+    tmp_cfg = Path(xdg_run).joinpath('sway/ppsi/remote.yml')
+    if tmp_cfg.is_file():
         with open(tmp_cfg, 'r') as config_h:
             data = yaml.safe_load(config_h)
         if not data:
@@ -81,8 +83,7 @@ def add_id(identity: str, new: str = 'user') -> None:
         ``None``
 
     '''
-    if not os.path.exists(TMP_CFG):
-        os.makedirs(os.path.split(TMP_CFG)[0], exist_ok=True)
+    TMP_CFG.parent.mkdir(parents=True, exist_ok=True)
     if 'remote' not in DATA:
         DATA['remote'] = {'hosts': [], 'users': []}
     if 'apps' not in DATA:
@@ -97,7 +98,7 @@ def add_id(identity: str, new: str = 'user') -> None:
         yaml.safe_dump(DATA, config_h)
 
 
-def which_remote() -> typing.Tuple[typing.Optional[str], typing.Optional[str]]:
+def which_remote() -> Tuple[Optional[str], Optional[str]]:
     '''
     Fetch desired remote session details using ``menu``
 
@@ -106,8 +107,8 @@ def which_remote() -> typing.Tuple[typing.Optional[str], typing.Optional[str]]:
         host
     '''
     # default config
-    known_users: typing.List[str] = CONFIG['remote']['users']
-    known_hosts: typing.List[str] = CONFIG['remote']['hosts']
+    known_users: List[str] = CONFIG['remote']['users']
+    known_hosts: List[str] = CONFIG['remote']['hosts']
 
     # temporary config
     if 'remote' in DATA:
@@ -136,17 +137,19 @@ def graphical() -> bool:
     return menu(opts=['No', 'Yes'], prompt='Graphical') == 'Yes'
 
 
-def remote_app() -> str:
+def remote_app() -> Optional[str]:
     '''
     Get remote app, also remember it
 
     Returns:
         Graphical Remote App
     '''
-    known_apps = []
+    known_apps: List[str] = []
     if 'apps' in DATA:
         known_apps += DATA['apps']
     app = menu(opts=known_apps, prompt='application name')
+    if app is None:
+        return None
     if app not in known_apps:
         add_id(app, new='app')
     return app
@@ -177,8 +180,7 @@ def call_remote(**_) -> int:
         if app is not None:
             cmd.insert(0, 'waypipe')
             cmd.append(
-                f'env XDG_SESSION_TYPE=wayland nohup {app} 2>&1 1>/dev/null &'
-            )
+                f'env XDG_SESSION_TYPE=wayland nohup {app} 2>&1 1>/dev/null &')
         else:
             cmd.insert(0, os.environ.get('defterm', 'xterm'))
     else:

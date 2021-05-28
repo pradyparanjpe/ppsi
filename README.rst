@@ -30,8 +30,9 @@ What it does
 provides a python interface for:
 
 - workspace-specific keybindings for
-  - workspace-default code: triggered by ``$mod+Shift+Return``
-  - workspace-specific customizable code
+
+  - workspace's default app: triggered by ``$mod+Shift+Return``
+  - workspace-specific customizable apps
 
 - remote [ssh/waypipe]
 - password-manager [pass]
@@ -39,20 +40,20 @@ provides a python interface for:
 - bluetooth [bluez]
 - reboot [systemd]
 - poweroff [systemd]
-- volume [pulseaudio] with feedback
+- volume [pactl] with feedback
 - brightness [ light] with feedback
 
-- bar (a simple info-bar) showing:
+- a customizable pspbar (an info-bar) showing:
 
-  - Workload
+  - Workload (only if heavy)
   - OS Name
   - Network Speeds
-  - Current IP
+  - Current IP (interactive)
   - RAM Usage
   - CPU Usage
   - Core Temperature
-  - Battery
-  - Time
+  - Battery (interactive)
+  - Time (interactive)
 
 
 .. |Documentation Status| image:: https://readthedocs.org/projects/ppsi/badge/?version=latest

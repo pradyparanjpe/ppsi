@@ -28,6 +28,8 @@ from typing import Dict, Optional
 import psutil
 
 from ..common import shell
+from ..server.sway_api import sway_nag
+from . import CONFIG
 from .classes import BarSeg
 
 EMOJIS = {
@@ -39,6 +41,7 @@ EMOJIS = {
 }
 
 UPOWER_AVAIL = bool(which("upower"))
+BAT_CONF = CONFIG['battery']
 
 
 def bat_time() -> Optional[float]:
@@ -73,8 +76,12 @@ class BatSeg(BarSeg):
     '''
     Battery segment,
     '''
-    # display: 0 -> None, 1 -> percentage, [2 -> estimated time]
-    display = -1 % (int(UPOWER_AVAIL) + 2)
+    def __init__(self, **kwargs):
+        # display: 0 -> None, 1 -> percentage, [2 -> estimated time]
+        self.display = {'time': 2, 'percent': 1}.get(BAT_CONF['display'], 0)
+        if not UPOWER_AVAIL and self.display == 2:
+            self.display = 1
+        super().__init__(**kwargs)
 
     @staticmethod
     def _bat_act(conn: bool, fill: float, mem: int) -> int:
@@ -94,26 +101,34 @@ class BatSeg(BarSeg):
 
         '''
         if conn:
+            mem = max(mem, 0)
             if fill > 99 and mem < 5:
                 mem += 1
                 # Send only 5 notifications
                 shell.notify('Battery_charged')
         else:
             time_left = bat_time() or 0xffff
-            mem = 0
-            if fill < 20 or time_left < (1 / 6):
-                shell.notify('Battery Too Low',
-                             timeout=0,
-                             send_args=('-u', 'critical'))
-            elif fill < 10 or time_left < (1 / 12):
-                shell.notify('Battery Too Low Suspending Session...',
-                             timeout=0,
-                             send_args=('-u', 'critical'))
-            elif fill < 5 or time_left < (1 / 24):
+            mem = min(mem, 0)
+            if fill < BAT_CONF['suspend'] or time_left < (1 / 24):
                 shell.process_comm('systemctl',
                                    'suspend',
                                    timeout=-1,
                                    fail='notify')
+            elif fill < BAT_CONF['critical'] or time_left < (1 / 12):
+                shell.notify('Battery Too Low Suspending Session...',
+                             timeout=0,
+                             send_args=('-u', 'critical'))
+                sway_nag("Battery Too Low Suspending Session...")
+            elif fill < BAT_CONF['minimal'] or time_left < (1 / 6):
+                mem -= 1
+                if mem % 5:
+                    shell.notify('Battery Too Low',
+                                 timeout=0,
+                                 send_args=('-u', 'critical'))
+            elif fill < BAT_CONF['low'] or time_left < (1 / 3):
+                mem -= 1
+                if mem % 10:
+                    shell.notify('Low battery', timeout=0)
         return mem
 
     def call_me(self, mem: int = None, **_) -> Dict[str, object]:
@@ -145,11 +160,11 @@ class BatSeg(BarSeg):
         # returns
         if bat_fill >= 100:
             sym, color = EMOJIS['bat_100'], "#7fffffff"
-        elif bat_fill > 75:
+        elif bat_fill > BAT_CONF['green']:
             sym, color = EMOJIS['bat_75'], "#7fff7fff"
-        elif bat_fill > 50:
+        elif bat_fill > BAT_CONF['yellow']:
             sym, color = EMOJIS['bat_50'], "#ffff7fff"
-        elif bat_fill > 25:
+        elif bat_fill > BAT_CONF['red']:
             sym, color = EMOJIS['bat_25'], "#ff7f7fff"
         else:
             sym, color = EMOJIS['bat_0'], "#ff5f5fff"

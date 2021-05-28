@@ -25,7 +25,10 @@ from typing import Dict
 
 import psutil
 
+from . import CONFIG
 from .classes import BarSeg
+
+TEMP_CONFIG = CONFIG['temperature']
 
 EMOJIS = {
     "fire": chr(0x1f525),
@@ -58,18 +61,18 @@ class TempSeg(BarSeg):
             heat = psutil.sensors_temperatures()['coretemp'][0].current
         except:
             return {'vis': False}
-        if heat > 80:
+        if heat > TEMP_CONFIG['fire']:
             sym, val = EMOJIS['fire'], f"{heat:.0f}"
             color = "#ff5f5fff"
-        elif heat > 70:
+        elif heat > TEMP_CONFIG['orange']:
             sym, val = EMOJIS['temp_100'], f"{heat:.0f}"
             color = "#ffaf7fff"
-        elif heat > 60:
+        elif heat > TEMP_CONFIG['yellow']:
             sym, val = EMOJIS['temp_75'], f"{heat:.0f}"
             color = "#ffff5fff"
-        elif heat > 50:
+        elif heat > TEMP_CONFIG['hot']:
             sym, val = EMOJIS['temp_50'], f"{heat:.0f}"
-        elif heat > 40:
+        elif heat > TEMP_CONFIG['warm']:
             sym, val = EMOJIS['temp_25'], f"{heat:.0f}"
         else:
             sym, val = EMOJIS['temp_0'], f"{heat:.0f}"

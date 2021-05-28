@@ -24,16 +24,18 @@ password manager pass api
 Interactive password manager using `menu`
 '''
 
-
 import os
-import typing
-from time import sleep
 import re
+from pathlib import Path
+from time import sleep
+from typing import Optional
+
 from launcher_menus import menu
+
 from ..common import shell
 
 
-def generate_password(user_idx: str = None) -> int:
+def generate_password(user_idx: Optional[str] = None) -> int:
     '''
     Args:
         user_idx: user-requested password index
@@ -48,19 +50,25 @@ def generate_password(user_idx: str = None) -> int:
         user_idx = menu(opts=[], prompt='password for')
     if user_idx is None:
         return 1
-    pass_gen = shell.process_comm('pass', 'generate', user_idx,
+    pass_gen = shell.process_comm('pass',
+                                  'generate',
+                                  user_idx,
                                   p_name='generating password')
     if pass_gen is None:
         return 1
     pass_text = pass_gen.split('\n')
     pass_text.remove('')
     pass_plain = ansi_escape.sub('', pass_text[-1])
-    shell.process_comm('wl-copy', '-o', '-n', '-f', pass_plain.strip("\n"),
+    shell.process_comm('wl-copy',
+                       '-o',
+                       '-n',
+                       '-f',
+                       pass_plain.strip("\n"),
                        p_name='grabbing password')
     return 0
 
 
-def grab_password() -> typing.Optional[str]:
+def grab_password() -> Optional[str]:
     '''
     Select password interactively and copy it to ``wl-copy``
 
@@ -73,24 +81,27 @@ def grab_password() -> typing.Optional[str]:
     prefix = os.environ.get('PASSWORD_STORE_DIR',
                             f'{os.environ["HOME"]}/.password-store')
     password_files = []
-    for base_path, _, leaves in os.walk(prefix):
-        for file_name in leaves:
-            _, f_ext = os.path.splitext(file_name)
-            if f_ext == '.gpg':
-                f_path = os.path.join(base_path, file_name.replace('.gpg', ''))
-                password_files.append(os.path.relpath(f_path, prefix))
+    for target in Path(prefix).glob("**/*.gpg"):
+        password_files.append(target.with_suffix("").relative_to(prefix))
     user_idx = menu(opts=password_files, prompt='password for')
     if user_idx is None:
         return None
     if user_idx not in password_files:
         return user_idx
     # Password is known
-    pass_text = shell.process_comm('pass', 'show', user_idx,
+    pass_text = shell.process_comm('pass',
+                                   'show',
+                                   user_idx,
                                    p_name='reading password db')
     if pass_text is None:
         return None
-    shell.process_comm('wl-copy', '-o', '-n', '-f', pass_text.strip("\n"),
-                       p_name='grabbing password', timeout=-1)
+    shell.process_comm('wl-copy',
+                       '-o',
+                       '-n',
+                       '-f',
+                       pass_text.strip("\n"),
+                       p_name='grabbing password',
+                       timeout=-1)
     sleep(45)  # block for 45 seconds
     shell.process_comm('wl-paste', p_name='throwing password', timeout=-1)
     return None
@@ -115,9 +126,7 @@ def password(subcmd: int = 0) -> int:
         user_idx = grab_password()
         if not user_idx:
             return 1
-    if (
-            (not subcmd % 2) and
-            (menu(opts=['No', 'Yes'], prompt='Create?') == 'Yes')
-    ):
+    if ((not subcmd % 2)
+            and (menu(opts=['No', 'Yes'], prompt='Create?') == 'Yes')):
         return generate_password(user_idx=user_idx)
     return 0

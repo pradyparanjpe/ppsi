@@ -24,17 +24,17 @@ ppsi servers functions to listen and
 decode request/subcommands from unix socket
 '''
 
-
-import os
+import json
+import socket
 import sys
 import threading
-import socket
-import json
+
 import psutil
 from psprint import print
+
 from ..common import defined
 from .commands import cmd_wrap
-from .event_watcher import open_pipe, EventLogger
+from .event_watcher import EventLogger, open_pipe
 
 
 def read_json_bytes(pipe: socket.socket) -> dict:
@@ -123,15 +123,15 @@ def manage_socket():
             # Check if process name contains the given name string.
             if 'ppsid' in proc.name().lower():
                 count_daemons += 1
-        except (psutil.NoSuchProcess,
-                psutil.AccessDenied,
+        except (psutil.NoSuchProcess, psutil.AccessDenied,
                 psutil.ZombieProcess):
             pass
     if count_daemons > 1:
         # discounting THIS daemon
         print("Server is already running", mark='err')
         return True
-    os.rename(defined.SOCK_PATH, defined.SOCK_PATH + ".last_session")
+    defined.SOCK_PATH.rename(
+        defined.SOCK_PATH.with_suffix(".sock.last_session"))
     return False
 
 
@@ -162,5 +162,5 @@ def start_srv(**_):
     except KeyboardInterrupt:
         pass
     logger.wob.kill()
-    os.remove(defined.SOCK_PATH)
+    defined.SOCK_PATH.unlink()
     sys.exit(0)
